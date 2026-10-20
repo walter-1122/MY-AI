@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1020">
-<meta name="description" content="MY AI — your personal assignment and study companion.">
-<title>MY AI — Your Personal Study Companion</title>
+<meta name="description" content="Hussnain's AI — your personal assignment and study companion.">
+<title>Hussnain's AI — Your Personal Study Companion</title>
 
 <!-- Custom MY AI favicon -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='%230b1020'/%3E%3Cpath d='M22 70V29h10l18 22 18-22h10v41H67V47L50 67 33 47v23z' fill='url(%23g)'/%3E%3C/svg%3E">
@@ -140,7 +139,7 @@ footer strong { color:#aeb9d2; }
 @keyframes rise { from {opacity:0;transform:translateY(14px)} to {opacity:1;transform:translateY(0)} }
 @media(max-width:760px) {
   .topbar { height:67px;padding:0 5%; }
-  .brand-name { font-size:18px; }
+  .brand-name { font-size:15px;letter-spacing:-.4px; }
   .status { font-size:10px; }
   main { width:92%; }
   .hero { padding:45px 0 28px; }
@@ -173,8 +172,8 @@ footer strong { color:#aeb9d2; }
   <div class="brand">
     <div class="logo">M</div>
     <div>
-      <div class="brand-name">MY <span>AI</span></div>
-      <div class="brand-sub">YOUR STUDY COMPANION</div>
+      <div class="brand-name">HUSSNAIN’S <span>AI</span></div>
+      <div class="brand-sub">YOUR PERSONAL STUDY COMPANION</div>
     </div>
   </div>
   <div class="status"><span class="dot"></span> Workspace ready</div>
@@ -297,7 +296,7 @@ footer strong { color:#aeb9d2; }
 </main>
 
 <footer>
-  <strong>MY AI</strong> · Your personal study companion<br>
+  <strong>HUSSNAIN’S AI</strong> · Your personal study companion<br>
   Use your course materials to verify facts and references. Review and understand your work before submission.
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -379,7 +378,7 @@ $("assignmentForm").addEventListener("submit", event => {
     ${instructions ? `<h3>Instructor's instructions</h3><p>${instructions}</p>` : ""}
     <div class="actions">
       <button class="secondary" id="copyBtn" type="button">Copy draft</button>
-      <button class="primary" id="pdfBtn" type="button">Print / Save PDF</button>
+      <button class="primary" id="pdfBtn" type="button">Download PDF</button>
     </div>`;
 
   $("notesIntro").textContent = `Revision outline for: ${currentTopic}`;
@@ -407,12 +406,88 @@ $("assignmentForm").addEventListener("submit", event => {
     <p id="quizScore" aria-live="polite"></p>`;
 
   $("copyBtn").addEventListener("click", copyDraft);
-  $("pdfBtn").addEventListener("click", () => window.print());
+  $("pdfBtn").addEventListener("click", downloadPDF);
   $("checkQuiz").addEventListener("click", checkQuiz);
   setTab("assignment");
   $("workspace").scrollIntoView({behavior:"smooth",block:"start"});
   showToast("Draft created. Next, connect an AI model for real answers.");
 });
+
+
+function downloadPDF() {
+  // Build a lightweight, valid PDF locally, without opening the browser print dialog.
+  const rawText = $("output").innerText
+    .replace(/Copy draft/g, "")
+    .replace(/Download PDF/g, "")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
+  const clean = rawText
+    .filter(line => !line.includes("Draft template — not AI-generated research."))
+    .filter(line => !line.includes("This version runs without an AI service."))
+    .map(line => line.replace(/[^\x20-\x7E]/g, " "));
+  const lines = [];
+  clean.forEach(line => {
+    const words = line.split(/\s+/);
+    let current = "";
+    words.forEach(word => {
+      if ((current + " " + word).trim().length > 88) {
+        if (current) lines.push(current);
+        current = word;
+      } else current = (current ? current + " " : "") + word;
+    });
+    if (current) lines.push(current);
+    lines.push("");
+  });
+  const pages = [];
+  for (let i = 0; i < lines.length; i += 48) pages.push(lines.slice(i, i + 48));
+  if (!pages.length) pages.push(["HUSSNAIN'S AI", "", "No assignment content available."]);
+  const objects = [];
+  const add = value => { objects.push(value); return objects.length; };
+  const catalogId = add("");
+  const pagesId = add("");
+  const fontId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  const pageIds = [];
+  const contentIds = [];
+  pages.forEach(pageLines => {
+    let stream = "BT\n/F1 10 Tf\n50 790 Td\n14 TL\n";
+    pageLines.forEach((line, idx) => {
+      const escaped = line.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+      stream += `(${escaped}) Tj\nT*\n`;
+    });
+    stream += "ET";
+    const contentId = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    contentIds.push(contentId);
+    const pageId = add("");
+    pageIds.push(pageId);
+  });
+  objects[catalogId - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
+  objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`;
+  pageIds.forEach((id, i) => {
+    objects[id - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentIds[i]} 0 R >>`;
+  });
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((obj, i) => {
+    offsets.push(pdf.length);
+    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (let i = 1; i < offsets.length; i++) pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  const blob = new Blob([pdf], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const topicName = ($("topic").value || "assignment").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").slice(0, 55) || "assignment";
+  a.href = url;
+  a.download = `${topicName}-hussnains-ai.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  showToast("PDF download started.");
+}
 
 function copyDraft() {
   const text = $("output").innerText;
