@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="MY AI — your personal assignment and study companion.">
+<title>MY AI — Your Personal Study Companion</title>
+
+<!-- Custom MY AI favicon -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='%230b1020'/%3E%3Cpath d='M22 70V29h10l18 22 18-22h10v41H67V47L50 67 33 47v23z' fill='url(%23g)'/%3E%3C/svg%3E">
+
+<style>
+:root {
+  --bg:#080c18;
+  --panel:#101729;
+  --panel2:#151e32;
+  --line:rgba(255,255,255,.09);
+  --text:#f3f5ff;
+  --muted:#96a2bc;
+  --purple:#9274ff;
+  --cyan:#58d9ff;
+  --green:#6de4b1;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 5% 0%,rgba(104,77,255,.13),transparent 34%),
+    radial-gradient(ellipse at 100% 25%,rgba(34,185,255,.07),transparent 28%),
+    var(--bg);
+  min-height:100vh;
+}
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible {
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+}
+.topbar {
+  height:76px;
+  padding:0 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,12,24,.8);
+  backdrop-filter:blur(16px);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.logo {
+  width:43px;height:43px;border-radius:14px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#7c5cff,#19c9ff);
+  color:white;font-size:23px;font-weight:900;
+  box-shadow:0 5px 24px #7555ff40;
+}
+.brand-name { font-size:20px;font-weight:850;letter-spacing:-.7px; }
+.brand-name span {
+  background:linear-gradient(90deg,#a88dff,#57ddff);
+  color:transparent;background-clip:text;
+}
+.brand-sub { font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px; }
+.status { color:var(--green);font-size:12px;display:flex;align-items:center;gap:7px; }
+.dot { width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #6de4b188; }
+main { width:min(1120px,90%);margin:auto; }
+.hero { padding:66px 0 38px;animation:rise .7s ease both; }
+.eyebrow {
+  color:#b4a3ff;font-size:11px;font-weight:800;letter-spacing:2px;
+  display:flex;align-items:center;gap:9px;text-transform:uppercase;
+}
+.eyebrow:before { content:"";width:24px;height:1px;background:var(--purple); }
+h1 { font-size:clamp(36px,6vw,62px);line-height:1.08;letter-spacing:-2.5px;margin:20px 0 16px;max-width:750px; }
+.gradient-text { background:linear-gradient(100deg,#b39bff,#67dfff);color:transparent;background-clip:text; }
+.hero p { color:var(--muted);font-size:15px;line-height:1.8;max-width:650px;margin:0; }
+.features { display:flex;gap:9px;flex-wrap:wrap;margin-top:23px; }
+.pill { padding:9px 12px;border:1px solid var(--line);background:#ffffff05;border-radius:30px;color:#d4d9e9;font-size:12px; }
+.layout { display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:60px; }
+.card { background:linear-gradient(145deg,#121a2d,#0e1424);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 15px 50px #00000012; }
+.card-head { padding:23px 24px 19px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:center; }
+.card-icon { width:43px;height:43px;display:grid;place-items:center;background:#9074ff18;border:1px solid #9074ff30;border-radius:13px;font-size:21px; }
+.card-head h2 { font-size:16px;margin:0 0 5px; }
+.card-head p { font-size:12px;color:var(--muted);margin:0; }
+.card-body { padding:23px 24px; }
+label { display:block;font-size:12px;font-weight:700;color:#dfe4f5;margin-bottom:9px; }
+input,textarea,select {
+  display:block;width:100%;color:var(--text);background:#080e1c;
+  border:1px solid #29334b;border-radius:11px;padding:13px 14px;
+  transition:border .2s,box-shadow .2s;
+}
+input:focus,textarea:focus,select:focus { outline:none;border-color:var(--purple);box-shadow:0 0 0 3px #9274ff19; }
+input::placeholder,textarea::placeholder { color:#65718b; }
+textarea { min-height:105px;resize:vertical;line-height:1.6; }
+select { appearance:auto; }
+.field { margin-bottom:19px; }
+.two { display:grid;grid-template-columns:1fr 1fr;gap:13px; }
+.hint { font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px; }
+.primary,.secondary {
+  border:0;border-radius:11px;padding:13px 17px;font-weight:750;
+  transition:transform .2s,filter .2s;
+}
+.primary { color:white;background:linear-gradient(100deg,#7957f7,#458dfb);box-shadow:0 7px 24px #7957f729; }
+.secondary { color:#e2e8ff;background:#ffffff08;border:1px solid var(--line); }
+.primary:hover,.secondary:hover { transform:translateY(-2px);filter:brightness(1.1); }
+.full { width:100%; }
+.tabs { display:flex;gap:7px;padding:14px 18px;border-bottom:1px solid var(--line);overflow-x:auto; }
+.tab { white-space:nowrap;padding:9px 12px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:700; }
+.tab.active { color:white;background:#9274ff20;border-color:#9274ff42; }
+.result-body { padding:22px; }
+.empty { min-height:355px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px; }
+.empty-icon { width:76px;height:76px;border-radius:23px;background:linear-gradient(145deg,#9274ff22,#58d9ff12);border:1px solid #9274ff25;display:grid;place-items:center;font-size:32px;margin-bottom:20px; }
+.empty h3 { margin:0 0 9px;font-size:17px; }
+.empty p { color:var(--muted);font-size:12px;line-height:1.8;max-width:290px;margin:0; }
+.output { display:none; }
+.output h2 { font-size:23px;line-height:1.35;letter-spacing:-.5px; }
+.output h3 { margin-top:24px;font-size:15px;color:#c7baff; }
+.output p,.output li { font-size:13px;line-height:1.9;color:#c7d0e3; }
+.output .notice { border:1px solid #f0bf5833;background:#f0bf580b;color:#e8cc8d;border-radius:10px;padding:12px;font-size:11px;line-height:1.7; }
+.actions { display:flex;gap:8px;flex-wrap:wrap;margin-top:18px; }
+.actions button { flex:1;min-width:105px;font-size:12px; }
+.study-area { display:none; }
+.study-area h3 { color:#d4caff; }
+.flashcard { border:1px solid var(--line);border-radius:14px;padding:20px;background:#ffffff04;margin-top:15px; }
+.flashcard strong { display:block;margin-bottom:10px;font-size:14px; }
+.flashcard p { color:var(--muted);font-size:13px;line-height:1.8; }
+.quiz-q { padding:15px 0;border-bottom:1px solid var(--line); }
+.quiz-q p { font-size:13px;line-height:1.7; }
+.quiz-q label { font-weight:400;color:#cbd3e5;line-height:1.7;display:flex;gap:9px;align-items:flex-start; }
+.quiz-q input { width:auto;margin-top:4px; }
+footer { text-align:center;padding:25px 10px 40px;color:#69758f;font-size:11px;line-height:1.8;border-top:1px solid var(--line); }
+footer strong { color:#aeb9d2; }
+.toast { display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a2540;border:1px solid #ffffff20;color:white;border-radius:12px;padding:13px 18px;font-size:12px;z-index:10;max-width:90%;box-shadow:0 10px 35px #0008; }
+@keyframes rise { from {opacity:0;transform:translateY(14px)} to {opacity:1;transform:translateY(0)} }
+@media(max-width:760px) {
+  .topbar { height:67px;padding:0 5%; }
+  .brand-name { font-size:18px; }
+  .status { font-size:10px; }
+  main { width:92%; }
+  .hero { padding:45px 0 28px; }
+  h1 { letter-spacing:-1.5px; }
+  .layout { grid-template-columns:1fr;gap:17px; }
+  .card-body { padding:19px; }
+  .card-head { padding:19px; }
+  .two { gap:10px; }
+  .result-body { padding:17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation:none!important;scroll-behavior:auto!important;transition:none!important; }
+}
+@media print {
+  body { background:white!important;color:#111!important; }
+  body * { visibility:hidden!important; }
+  #output,#output * { visibility:visible!important;color:#111!important;background:white!important;box-shadow:none!important; }
+  #output { display:block!important;position:absolute;left:0;top:0;width:100%;padding:20px;font-family:Georgia,serif; }
+  #output h2 { font-size:23pt; }
+  #output h3 { font-size:15pt;color:#222!important; }
+  #output p,#output li { font-size:11pt;line-height:1.65; }
+  #output .notice,#output .actions { display:none!important; }
+  @page { margin:20mm; }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">M</div>
+    <div>
+      <div class="brand-name">MY <span>AI</span></div>
+      <div class="brand-sub">YOUR STUDY COMPANION</div>
+    </div>
+  </div>
+  <div class="status"><span class="dot"></span> Workspace ready</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Your personal learning space</div>
+    <h1>Think smarter.<br><span class="gradient-text">Study better.</span></h1>
+    <p>Create assignment drafts, organize study notes and prepare for exams — all in one clean workspace designed for students.</p>
+    <div class="features">
+      <span class="pill">✦ Assignment drafts</span>
+      <span class="pill">▤ PDF export</span>
+      <span class="pill">✧ Revision tools</span>
+      <span class="pill">✓ Self-testing</span>
+    </div>
+  </section>
+
+  <section class="layout">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">✎</div>
+        <div><h2>Assignment Studio</h2><p>Start with your topic and requirements.</p></div>
+      </div>
+      <div class="card-body">
+        <form id="assignmentForm">
+          <div class="field">
+            <label for="topic">ASSIGNMENT TOPIC *</label>
+            <textarea id="topic" required placeholder="e.g. The impact of artificial intelligence on education"></textarea>
+          </div>
+          <div class="two">
+            <div class="field">
+              <label for="subject">SUBJECT</label>
+              <input id="subject" placeholder="e.g. Computer Science">
+            </div>
+            <div class="field">
+              <label for="level">STUDY LEVEL</label>
+              <select id="level">
+                <option>University / Bachelor's</option>
+                <option>Intermediate / College</option>
+                <option>Master's / MS</option>
+                <option>School</option>
+              </select>
+            </div>
+          </div>
+          <div class="two">
+            <div class="field">
+              <label for="length">LENGTH</label>
+              <select id="length">
+                <option>3–5 pages</option>
+                <option selected>8–10 pages</option>
+                <option>15–20 pages</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="language">LANGUAGE</label>
+              <select id="language">
+                <option>English</option>
+                <option>Urdu</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="student">STUDENT NAME (OPTIONAL)</label>
+            <input id="student" placeholder="Your name">
+          </div>
+          <div class="two">
+            <div class="field">
+              <label for="university">UNIVERSITY (OPTIONAL)</label>
+              <input id="university" placeholder="University name">
+            </div>
+            <div class="field">
+              <label for="roll">ROLL NUMBER (OPTIONAL)</label>
+              <input id="roll" placeholder="Your roll number">
+            </div>
+          </div>
+          <div class="field">
+            <label for="instructions">TEACHER'S INSTRUCTIONS (OPTIONAL)</label>
+            <textarea id="instructions" placeholder="Required headings, citation style, questions, etc." style="min-height:75px"></textarea>
+          </div>
+          <button class="primary full" type="submit">✦ Create assignment draft</button>
+          <p class="hint">This first version creates a structured template locally. Connecting an AI model is a separate step.</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="card" id="workspace">
+      <div class="card-head">
+        <div class="card-icon">▤</div>
+        <div><h2>Your Workspace</h2><p>Your draft and study materials appear here.</p></div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="assignment">Assignment</button>
+        <button class="tab" data-tab="notes">Study notes</button>
+        <button class="tab" data-tab="quiz">Quick quiz</button>
+      </div>
+      <div class="result-body">
+        <div class="empty" id="emptyState">
+          <div class="empty-icon">✧</div>
+          <h3>Your next big idea starts here.</h3>
+          <p>Enter your assignment topic to create a structured draft and start preparing your study materials.</p>
+        </div>
+
+        <article class="output" id="output"></article>
+
+        <section class="study-area" id="notesArea">
+          <h3>Study notes</h3>
+          <p id="notesIntro">Create an assignment draft first to prepare a study outline.</p>
+          <div id="notesContent"></div>
+        </section>
+
+        <section class="study-area" id="quizArea">
+          <h3>Check your understanding</h3>
+          <p id="quizIntro">Create a draft first to unlock a basic topic-based practice quiz.</p>
+          <div id="quizContent"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <strong>MY AI</strong> · Your personal study companion<br>
+  Use your course materials to verify facts and references. Review and understand your work before submission.
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentTab = "assignment";
+let currentTopic = "";
+let toastTimer;
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.style.display = "none", 3200);
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[ch]);
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".tab").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === tab);
+  });
+  $("emptyState").style.display = currentTopic ? "none" : "flex";
+  $("output").style.display = currentTopic && tab === "assignment" ? "block" : "none";
+  $("notesArea").style.display = currentTopic && tab === "notes" ? "block" : "none";
+  $("quizArea").style.display = currentTopic && tab === "quiz" ? "block" : "none";
+}
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.addEventListener("click", () => setTab(button.dataset.tab));
+});
+
+$("assignmentForm").addEventListener("submit", event => {
+  event.preventDefault();
+  currentTopic = $("topic").value.trim();
+  if (!currentTopic) {
+    showToast("Please enter your assignment topic.");
+    return;
+  }
+
+  const topic = escapeHTML(currentTopic);
+  const subject = escapeHTML($("subject").value.trim() || "General Studies");
+  const level = escapeHTML($("level").value);
+  const length = escapeHTML($("length").value);
+  const language = escapeHTML($("language").value);
+  const student = escapeHTML($("student").value.trim() || "________________");
+  const university = escapeHTML($("university").value.trim() || "________________");
+  const roll = escapeHTML($("roll").value.trim() || "________________");
+  const instructions = escapeHTML($("instructions").value.trim());
+
+  $("output").innerHTML = `
+    <div class="notice"><strong>Draft template — not AI-generated research.</strong><br>
+    This version runs without an AI service. The sections below are a starting structure, not verified facts or completed academic research. We will connect a model in a later step.</div>
+    <h2>${topic}</h2>
+    <p><strong>Subject:</strong> ${subject}<br><strong>Study level:</strong> ${level}<br><strong>Suggested length:</strong> ${length}<br><strong>Language:</strong> ${language}</p>
+    <h3>Assignment cover details</h3>
+    <p><strong>University:</strong> ${university}<br><strong>Student:</strong> ${student}<br><strong>Roll number:</strong> ${roll}<br><strong>Subject:</strong> ${subject}</p>
+    <h3>1. Introduction</h3>
+    <p>Introduce the topic "${topic}". Explain its background, define the main concepts using reliable course materials, and describe why it matters in ${subject}.</p>
+    <h3>2. Background and key concepts</h3>
+    <p>Define the important terms related to the topic. Summarize relevant theories, established knowledge and context from your textbook or credible academic sources. Add citations for the information you use.</p>
+    <h3>3. Main discussion</h3>
+    <p>Organize the central discussion into clear headings. Explain each major idea, compare relevant viewpoints, provide examples and support factual claims with trustworthy evidence.</p>
+    <h3>4. Examples and analysis</h3>
+    <p>Use relevant real-world examples or case studies. Explain how they relate to the topic and discuss their implications, limitations or practical applications.</p>
+    <h3>5. Challenges and limitations</h3>
+    <p>Identify relevant problems, opposing perspectives or unanswered questions. Support your analysis with sources and explain why these issues matter.</p>
+    <h3>6. Conclusion</h3>
+    <p>Summarize the main findings of your discussion. Relate the conclusion to the assignment objective without introducing unsupported claims or new evidence.</p>
+    <h3>7. References</h3>
+    <p>Add the real books, academic papers and reliable websites you consulted. Follow the citation style required by your instructor. Verify every author, title, date and URL.</p>
+    ${instructions ? `<h3>Instructor's instructions</h3><p>${instructions}</p>` : ""}
+    <div class="actions">
+      <button class="secondary" id="copyBtn" type="button">Copy draft</button>
+      <button class="primary" id="pdfBtn" type="button">Print / Save PDF</button>
+    </div>`;
+
+  $("notesIntro").textContent = `Revision outline for: ${currentTopic}`;
+  $("notesContent").innerHTML = `
+    <div class="flashcard"><strong>Remember the structure</strong><p>Introduction → Key concepts → Main discussion → Examples → Limitations → Conclusion → References.</p></div>
+    <div class="flashcard"><strong>Explain it in your own words</strong><p>Write a two-sentence explanation of "${topic}" from memory. Then check it against your course materials.</p></div>
+    <div class="flashcard"><strong>Active recall</strong><p>Without looking at your notes, list three important concepts connected to the topic and explain each one.</p></div>
+    <div class="flashcard"><strong>Check your sources</strong><p>Confirm key facts in your textbook or academic sources. Never include a reference you have not verified.</p></div>`;
+
+  $("quizIntro").textContent = `Practice questions for: ${currentTopic}`;
+  $("quizContent").innerHTML = `
+    <div class="quiz-q"><p><strong>1. What should an introduction usually do?</strong></p>
+      <label><input type="radio" name="q1" value="a"> Present the topic and its context</label>
+      <label><input type="radio" name="q1" value="b"> List unrelated facts</label>
+      <label><input type="radio" name="q1" value="c"> Replace the conclusion</label></div>
+    <div class="quiz-q"><p><strong>2. What makes a reference reliable?</strong></p>
+      <label><input type="radio" name="q2" value="a"> It sounds convincing</label>
+      <label><input type="radio" name="q2" value="b"> Its details and claims can be verified</label>
+      <label><input type="radio" name="q2" value="c"> It has no author or title</label></div>
+    <div class="quiz-q"><p><strong>3. What is a good way to remember material?</strong></p>
+      <label><input type="radio" name="q3" value="a"> Read it once only</label>
+      <label><input type="radio" name="q3" value="b"> Copy it without understanding</label>
+      <label><input type="radio" name="q3" value="c"> Practise recalling it and test yourself</label></div>
+    <button class="primary full" id="checkQuiz" type="button">Check my answers</button>
+    <p id="quizScore" aria-live="polite"></p>`;
+
+  $("copyBtn").addEventListener("click", copyDraft);
+  $("pdfBtn").addEventListener("click", () => window.print());
+  $("checkQuiz").addEventListener("click", checkQuiz);
+  setTab("assignment");
+  $("workspace").scrollIntoView({behavior:"smooth",block:"start"});
+  showToast("Draft created. Next, connect an AI model for real answers.");
+});
+
+function copyDraft() {
+  const text = $("output").innerText;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast("Draft copied."))
+      .catch(() => showToast("Copy is unavailable here. You can select the text manually."));
+  } else {
+    showToast("Select the draft text and copy it manually.");
+  }
+}
+
+function checkQuiz() {
+  const answers = {q1:"a",q2:"b",q3:"c"};
+  let score = 0;
+  let answered = 0;
+  Object.entries(answers).forEach(([name, answer]) => {
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    if (selected) {
+      answered++;
+      if (selected.value === answer) score++;
+    }
+  });
+  $("quizScore").textContent = answered < 3
+    ? `You answered ${answered} of 3 questions. Finish the remaining questions.`
+    : `Your score: ${score}/3. ${score === 3 ? "Excellent work!" : "Review the answers and try again."}`;
+}
+
+</script>
+</body>
+</html>
