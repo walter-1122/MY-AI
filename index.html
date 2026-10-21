@@ -61,11 +61,9 @@ async function copyCurrent(){try{await navigator.clipboard.writeText(currentText
 async function downloadPDF(){
   if(currentTab!=="assignment"){showToast("Switch to Assignment to download its PDF.");return}
   if(typeof html2pdf==="undefined"){showToast("PDF library did not load. Check your internet connection and try again.");return}
-  const liveOutput=$("output");
-  // Read the currently rendered assignment itself, not currentText() (which can
-  // include UI controls) and not a hidden/off-screen detached .output element.
-  const assignment=liveOutput.cloneNode(true);
-  assignment.querySelectorAll(".notice,.actions,button").forEach(el=>el.remove());
+  // Use the original AI response text, not a clone of the hidden/displayed UI.
+  const rawAssignment=String(currentResult||"").trim();
+  if(!rawAssignment){showToast("No assignment text found. Generate the assignment again first.");return}
   const student=$("student").value.trim()||$("studentName").value.trim()||"________________";
   const roll=$("roll").value.trim()||"________________";
   const semester=$("semester").value.trim()||"________________";
@@ -74,7 +72,7 @@ async function downloadPDF(){
   const topic=$("topic").value.trim()||"Assignment";
   const wrapper=document.createElement("div");
   wrapper.id="myai-pdf-export-temp";
-  wrapper.style.cssText="position:fixed;left:-12000px;top:0;width:794px;background:#fff;color:#111;z-index:-1;box-sizing:border-box;padding:56px 58px;font-family:Georgia,'Times New Roman',serif;font-size:12pt;line-height:1.55;overflow:visible;";
+  wrapper.style.cssText="position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111;box-sizing:border-box;padding:56px 58px;font-family:Georgia,'Times New Roman',serif;font-size:12pt;line-height:1.55;overflow:visible;opacity:1;z-index:-1;";
   wrapper.innerHTML=`<div style="text-align:center;margin:0 0 26px"><h1 style="font-size:19pt;margin:0;text-decoration:underline;font-weight:bold;color:#111">ASSIGNMENT</h1></div>
   <table style="width:100%;border-collapse:collapse;margin:0 0 26px;font-size:11pt;color:#111"><tbody>
   <tr><td style="padding:7px;border:1px solid #777;width:50%"><b>Student Name:</b> ${esc(student)}</td><td style="padding:7px;border:1px solid #777"><b>Roll Number:</b> ${esc(roll)}</td></tr>
@@ -82,42 +80,20 @@ async function downloadPDF(){
   <tr><td colspan="2" style="padding:7px;border:1px solid #777"><b>University / College:</b> ${esc(university)}</td></tr>
   </tbody></table>
   <h2 style="text-align:center;font-size:16pt;font-weight:bold;text-decoration:underline;margin:0 0 20px;color:#111">${esc(topic)}</h2>
-  <div id="myai-pdf-assignment-content"></div>`;
+  <div id="myai-pdf-assignment-content" style="display:block;visibility:visible;color:#111;background:#fff"></div>`;
   const contentBox=wrapper.querySelector("#myai-pdf-assignment-content");
-  // Copy rendered assignment nodes into a visible, fixed-width export surface.
-  while(assignment.firstChild) contentBox.appendChild(assignment.firstChild);
+  contentBox.innerHTML=renderMarkdown(rawAssignment);
   contentBox.querySelectorAll("*").forEach(el=>{
-    el.style.color="#111";
-    el.style.background="transparent";
-    el.style.boxShadow="none";
-    el.style.textShadow="none";
-    el.style.maxWidth="100%";
-    el.style.overflow="visible";
-    if(["H1","H2","H3","H4"].includes(el.tagName)){
-      el.style.fontWeight="bold";el.style.textDecoration="underline";el.style.textUnderlineOffset="3px";
-      el.style.pageBreakAfter="avoid";el.style.breakAfter="avoid-page";
-    }
+    el.style.color="#111";el.style.background="transparent";el.style.boxShadow="none";el.style.textShadow="none";el.style.maxWidth="100%";el.style.overflow="visible";
+    if(["H1","H2","H3","H4"].includes(el.tagName)){el.style.fontWeight="bold";el.style.textDecoration="underline";el.style.textUnderlineOffset="3px";el.style.pageBreakAfter="avoid";el.style.breakAfter="avoid-page";}
     if(["P","LI"].includes(el.tagName)){el.style.fontSize="12pt";el.style.lineHeight="1.6";el.style.whiteSpace="normal";el.style.overflowWrap="anywhere";}
   });
-  // Preserve visible semantic text and allow long paragraphs/lists to split across pages.
-  contentBox.style.cssText="display:block!important;visibility:visible!important;position:static!important;width:100%!important;height:auto!important;overflow:visible!important;color:#111!important;background:#fff!important;";
   document.body.appendChild(wrapper);
-  const options={
-    margin:[12,12,14,12],
-    filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",
-    image:{type:"jpeg",quality:0.98},
-    html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#ffffff",logging:false,scrollX:0,scrollY:0,windowWidth:794},
-    jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-    pagebreak:{mode:["css"],avoid:["h1","h2","h3","h4"]}
-  };
+  const options={margin:[12,12,14,12],filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#ffffff",logging:false,scrollX:0,scrollY:0,windowWidth:794},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:["h1","h2","h3","h4"]}};
   showToast("Preparing your PDF download…");
-  try{
-    await html2pdf().set(options).from(wrapper).save();
-    showToast("PDF downloaded. Please check all pages.");
-  }catch(err){
-    console.error("MY AI PDF export failed:",err);
-    showToast("PDF could not be created. Try again after refreshing the page.");
-  }finally{wrapper.remove();}
+  try{await html2pdf().set(options).from(wrapper).save();showToast("PDF downloaded. Please check all pages.");}
+  catch(err){console.error("MY AI PDF export failed:",err);showToast("PDF could not be created. Try again after refreshing the page.");}
+  finally{wrapper.remove();}
 }
 const KEY="myAI_document_library_v1";
 function readLibrary(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}}
