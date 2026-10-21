@@ -26,18 +26,21 @@ html = r'''<!doctype html>
 </head>
 <body>
 <script>
-(async function(){
- const SUPABASE_URL="https://uyzxjazpzxbtvmhbsosd.supabase.co";
- const SUPABASE_PUBLISHABLE_KEY="sb_publishable_A_dI1sMBatvL9-E-3-qQ4Q_468pJPce";
- document.body.style.visibility="hidden";
- try{
-  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-  const {data,error}=await client.auth.getSession();
-  if(error||!data.session){location.replace(new URL("login.html",location.href).href);return}
-  window.myAiSupabase=client;window.myAiUser=data.session.user;
-  document.body.style.visibility="visible";
- }catch(e){location.replace(new URL("login.html",location.href).href)}
+<script>
+(function(){
+ const SUPABASE_URL = "https://uyzxjazpzxbtvmhbsosd.supabase.co";
+ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_A_dI1sMBatvL9-E-3-qQ4Q_468pJPce";
+
+ const client = window.supabase.createClient(
+   SUPABASE_URL,
+   SUPABASE_PUBLISHABLE_KEY
+ );
+
+ window.myAiSupabase = client;
+ window.myAiUser = null;
+ document.body.style.visibility = "visible";
 })();
+</script>
 </script>
 <div class="app">
 <aside class="sidebar">
