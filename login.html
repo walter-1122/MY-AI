@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050b1b">
+  <title>Login | MY AI</title>
+  <meta name="description" content="Sign in or create your MY AI account to access your personal AI workspace.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050b1b;
+      --panel: #091329;
+      --border: rgba(102, 145, 255, .24);
+      --muted: #9baaca;
+      --white: #f5f7ff;
+      --purple: #9847ff;
+      --blue: #13a8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 5%;
+      font-family: Inter, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(ellipse at 15% 30%, rgba(83, 40, 200, .17), transparent 42%),
+        radial-gradient(ellipse at 90% 85%, rgba(0, 137, 255, .14), transparent 40%),
+        var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input { font: inherit; }
+
+    .topbar {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--white);
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: linear-gradient(140deg, #182a62, #241144);
+      color: #53c9ff;
+      font-size: 27px;
+      font-weight: 800;
+      box-shadow: 0 0 25px #3924a322;
+    }
+
+    .brand-name { font-size: 29px; font-weight: 800; letter-spacing: -1px; }
+    .brand-name span { color: #50baff; }
+    .tagline { margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .top-note { color: #b8c7ed; text-align: right; font-size: 13px; line-height: 1.7; }
+
+    .layout {
+      max-width: 1200px;
+      width: 100%;
+      margin: auto;
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      min-height: 600px;
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      overflow: hidden;
+      background: rgba(8, 17, 37, .82);
+      box-shadow: 0 30px 100px #0005;
+    }
+
+    .showcase {
+      padding: 55px 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 20% 20%, #4421a844, transparent 55%),
+        linear-gradient(150deg, #101d49, #07112a 75%);
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .showcase::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      right: -160px;
+      bottom: -140px;
+      border: 1px solid #337dff55;
+      border-radius: 50%;
+      box-shadow: 0 0 0 30px #6535ff0a, 0 0 0 65px #268bff0a;
+    }
+
+    .orb {
+      width: 92px;
+      height: 92px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 25px;
+      border-radius: 28px;
+      font-size: 48px;
+      background: linear-gradient(145deg, #152f6d, #301351);
+      border: 1px solid #7861ff66;
+      box-shadow: 0 0 45px #763cff22;
+    }
+
+    .showcase h1 { margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -2px; }
+    .gradient { background: linear-gradient(90deg, #b18aff, #29baff); color: transparent; background-clip: text; }
+    .showcase > p { max-width: 380px; color: #aab9dc; line-height: 1.8; font-size: 15px; }
+
+    .features { margin-top: 28px; display: grid; gap: 23px; }
+    .feature { display: flex; align-items: flex-start; gap: 14px; }
+    .feature-icon {
+      width: 43px; height: 43px; flex-shrink: 0;
+      display: grid; place-items: center;
+      border-radius: 13px;
+      background: #7545ff1c;
+      border: 1px solid #8655ff40;
+      font-size: 20px;
+    }
+    .feature strong { font-size: 14px; }
+    .feature p { margin: 6px 0 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
+
+    .auth-panel { padding: 45px clamp(24px, 5vw, 65px); display: flex; flex-direction: column; justify-content: center; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 5px; background: #050c1d; border: 1px solid #182849; border-radius: 13px; }
+    .tab {
+      padding: 13px; border: 0; border-radius: 9px;
+      background: transparent; color: var(--muted);
+      cursor: pointer; font-weight: 600; transition: .2s;
+    }
+    .tab.active { color: white; background: linear-gradient(110deg, #7135e8, #176edc); box-shadow: 0 5px 18px #5729d733; }
+
+    .form-heading { margin: 32px 0 7px; font-size: 28px; letter-spacing: -.8px; }
+    .form-subtitle { margin: 0 0 28px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .field { margin-bottom: 19px; }
+    label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; color: #e1e8ff; }
+    input {
+      width: 100%; height: 51px; padding: 0 15px;
+      color: white; background: #071127;
+      border: 1px solid #26395f; border-radius: 10px;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    input::placeholder { color: #7183a8; }
+    input:focus { border-color: #6b73ff; box-shadow: 0 0 0 3px #6b73ff20; }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 72px; }
+    .show-password {
+      position: absolute; right: 8px; top: 8px; height: 35px;
+      border: 0; border-radius: 7px; padding: 0 8px;
+      color: #9caee0; background: transparent; cursor: pointer; font-size: 12px;
+    }
+
+    .form-options { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 4px 0 22px; }
+    .remember { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .remember input { width: 15px; height: 15px; accent-color: #8d48ff; }
+    .text-button { border: 0; background: transparent; padding: 0; color: #b58aff; cursor: pointer; font-size: 12px; }
+    .text-button:hover { color: #fff; }
+
+    .primary {
+      width: 100%; min-height: 51px; padding: 14px;
+      border: 0; border-radius: 10px;
+      background: linear-gradient(100deg, #903cff, #128ff2);
+      color: white; font-weight: 700; cursor: pointer;
+      transition: transform .2s, filter .2s;
+    }
+    .primary:hover { transform: translateY(-1px); filter: brightness(1.12); }
+    .primary:disabled { opacity: .65; cursor: wait; transform: none; }
+
+    .message { display: none; margin: 17px 0 0; padding: 12px 14px; border-radius: 9px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    .message.show { display: block; }
+    .message.error { color: #ffc5ce; background: #7d243522; border: 1px solid #d94b6b55; }
+    .message.success { color: #b9ffe0; background: #087b5120; border: 1px solid #29ce9155; }
+
+    .divider { display: flex; align-items: center; gap: 13px; margin: 23px 0; color: #7787aa; font-size: 11px; }
+    .divider::before, .divider::after { content: ""; height: 1px; flex: 1; background: #243453; }
+    .bottom-note { margin: 25px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+    .bottom-note button { font-weight: 700; }
+
+    footer { max-width: 1200px; width: 100%; margin: 35px auto 0; text-align: center; color: #7f90b4; font-size: 11px; line-height: 2; }
+    .security { margin-bottom: 8px; color: #a6b4d5; }
+
+    @media (max-width: 780px) {
+      body { padding: 22px 16px; }
+      .topbar { margin-bottom: 25px; }
+      .top-note { display: none; }
+      .layout { grid-template-columns: 1fr; min-height: auto; }
+      .showcase { padding: 28px 25px; border-right: 0; border-bottom: 1px solid var(--border); }
+      .orb { width: 58px; height: 58px; margin-bottom: 15px; border-radius: 18px; font-size: 29px; }
+      .showcase h1 { font-size: 32px; }
+      .showcase > p { margin-bottom: 0; }
+      .features { grid-template-columns: 1fr; gap: 15px; margin-top: 23px; }
+      .feature p { margin-top: 3px; }
+      .auth-panel { padding: 28px 23px 32px; }
+      .form-heading { font-size: 25px; margin-top: 26px; }
+      footer { margin-top: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="login.html" aria-label="MY AI home">
+      <div class="brand-icon">✳</div>
+      <div>
+        <div class="brand-name">MY <span>AI</span></div>
+        <div class="tagline">THINK · CREATE · ACHIEVE</div>
+      </div>
+    </a>
+    <div class="top-note">Your ideas deserve intelligence.<br>Welcome to your personal AI workspace.</div>
+  </header>
+
+  <main class="layout">
+    <section class="showcase">
+      <div class="orb" aria-hidden="true">✳</div>
+      <h1>Meet your next<br><span class="gradient">big idea.</span></h1>
+      <p>One intelligent workspace to turn your ideas into something extraordinary.</p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">✦</div>
+          <div><strong>AI-Powered Creation</strong><p>Explore ideas, write content and bring your thinking to life.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">▤</div>
+          <div><strong>Professional PDF Exports</strong><p>Turn your work into polished documents you can share.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⌁</div>
+          <div><strong>Your Personal Workspace</strong><p>A simple, secure place to get more done with AI.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="tabs" role="tablist" aria-label="Account options">
+        <button class="tab active" id="loginTab" type="button" role="tab" aria-selected="true">Log In</button>
+        <button class="tab" id="signupTab" type="button" role="tab" aria-selected="false">Create Account</button>
+      </div>
+
+      <h2 class="form-heading" id="formHeading">Welcome back</h2>
+      <p class="form-subtitle" id="formSubtitle">Enter your details to access your AI workspace.</p>
+
+      <form id="authForm">
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="Enter your password" required>
+            <button class="show-password" id="togglePassword" type="button">Show</button>
+          </div>
+        </div>
+
+        <div class="field" id="confirmField" hidden>
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Re-enter your password">
+        </div>
+
+        <div class="form-options" id="loginOptions">
+          <label class="remember"><input id="remember" type="checkbox" checked> Keep me signed in</label>
+          <button class="text-button" id="forgotButton" type="button">Forgot password?</button>
+        </div>
+
+        <button class="primary" id="submitButton" type="submit">Log In to MY AI →</button>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+      </form>
+
+      <p class="bottom-note" id="bottomNote">
+        New to MY AI? <button class="text-button" id="bottomSwitch" type="button">Create an account</button>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="security">◇ Secure authentication &nbsp; · &nbsp; Your data matters &nbsp; · &nbsp; Powered by Supabase</div>
+    © <span id="year"></span> MY AI. All rights reserved.
+  </footer>
+
+  <script>
+    // Replace these two values with your own Supabase project details.
+    const SUPABASE_URL = "https://uyzxjazpzxbtvmhbsosd.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+    const APP_URL = new URL("index.html", window.location.href).href;
+    const LOGIN_URL = new URL("login.html", window.location.href).href;
+
+    const heading = document.getElementById("formHeading");
+    const subtitle = document.getElementById("formSubtitle");
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const confirmField = document.getElementById("confirmField");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const loginOptions = document.getElementById("loginOptions");
+    const submitButton = document.getElementById("submitButton");
+    const message = document.getElementById("message");
+    const authForm = document.getElementById("authForm");
+    const password = document.getElementById("password");
+    const bottomNote = document.getElementById("bottomNote");
+
+    let mode = "login";
+    let supabaseClient = null;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function showMessage(text, type = "error") {
+      message.textContent = text;
+      message.className = "message show " + type;
+    }
+
+    function clearMessage() {
+      message.textContent = "";
+      message.className = "message";
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const signup = mode === "signup";
+      loginTab.classList.toggle("active", !signup);
+      signupTab.classList.toggle("active", signup);
+      loginTab.setAttribute("aria-selected", String(!signup));
+      signupTab.setAttribute("aria-selected", String(signup));
+      heading.textContent = signup ? "Create your account" : "Welcome back";
+      subtitle.textContent = signup
+        ? "Sign up to start using your personal AI workspace."
+        : "Enter your details to access your AI workspace.";
+      confirmField.hidden = !signup;
+      confirmPassword.required = signup;
+      password.autocomplete = signup ? "new-password" : "current-password";
+      loginOptions.hidden = signup;
+      submitButton.textContent = signup ? "Create My Account →" : "Log In to MY AI →";
+      bottomNote.innerHTML = signup
+        ? 'Already have an account? <button class="text-button" id="bottomSwitch" type="button">Log in</button>'
+        : 'New to MY AI? <button class="text-button" id="bottomSwitch" type="button">Create an account</button>';
+      document.getElementById("bottomSwitch").addEventListener("click", () => setMode(signup ? "login" : "signup"));
+      clearMessage();
+    }
+
+    loginTab.addEventListener("click", () => setMode("login"));
+    signupTab.addEventListener("click", () => setMode("signup"));
+    document.getElementById("bottomSwitch").addEventListener("click", () => setMode("signup"));
+
+    document.getElementById("togglePassword").addEventListener("click", () => {
+      const isHidden = password.type === "password";
+      password.type = isHidden ? "text" : "password";
+      document.getElementById("togglePassword").textContent = isHidden ? "Hide" : "Show";
+    });
+
+    function initSupabase() {
+      if (!window.supabase || !window.supabase.createClient) {
+        showMessage("The authentication library could not load. Check your internet connection and refresh.");
+        return false;
+      }
+      if (SUPABASE_PUBLISHABLE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE") {
+        showMessage("Setup needed: add your Supabase publishable key in the code before using login.");
+        return false;
+      }
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      return true;
+    }
+
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      if (!supabaseClient && !initSupabase()) return;
+
+      const email = document.getElementById("email").value.trim();
+      const pass = password.value;
+
+      if (mode === "signup" && pass !== confirmPassword.value) {
+        showMessage("Your passwords do not match. Please check and try again.");
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = mode === "signup" ? "Creating account..." : "Signing in...";
+
+      try {
+        if (mode === "signup") {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password: pass,
+            options: { emailRedirectTo: LOGIN_URL }
+          });
+          if (error) throw error;
+
+          if (data.session) {
+            showMessage("Your account is ready. Opening your AI workspace...", "success");
+            window.location.replace(APP_URL);
+            return;
+          }
+
+          showMessage("Account created! Check your email for the confirmation link. After confirming, return here and log in.", "success");
+          setMode("login");
+        } else {
+          const { error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password: pass
+          });
+          if (error) throw error;
+          showMessage("Login successful. Opening your AI workspace...", "success");
+          window.location.replace(APP_URL);
+          return;
+        }
+      } catch (error) {
+        showMessage(error.message || "Something went wrong. Please try again.");
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = mode === "signup" ? "Create My Account →" : "Log In to MY AI →";
+      }
+    });
+
+    document.getElementById("forgotButton").addEventListener("click", async () => {
+      clearMessage();
+      if (!supabaseClient && !initSupabase()) return;
+
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        showMessage("Enter your email address first, then click Forgot password.");
+        document.getElementById("email").focus();
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: LOGIN_URL
+        });
+        if (error) throw error;
+        showMessage("If the address is registered, a password reset email will be sent. Check your inbox.", "success");
+      } catch (error) {
+        showMessage(error.message || "Could not request a password reset.");
+      }
+    });
+
+    // If a user already has a valid session, don't show the login page again.
+    if (initSupabase()) {
+      supabaseClient.auth.getSession().then(({ data }) => {
+        if (data.session) window.location.replace(APP_URL);
+      });
+    }
+  </script>
+</body>
+</html>
