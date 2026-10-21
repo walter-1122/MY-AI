@@ -68,6 +68,16 @@ function downloadPDF(){
   const university=$("university").value.trim()||"________________";
   const topic=$("topic").value.trim()||"Assignment";
   const content=$("output").cloneNode(true);
+  // The live assignment container is hidden by the app's .output CSS rule.
+  // Remove that class in the PDF clone and force visible layout, otherwise
+  // html2canvas captures empty pages or only fragments of the assignment.
+  content.classList.remove("output");
+  content.style.display="block";
+  content.style.visibility="visible";
+  content.style.position="static";
+  content.style.width="100%";
+  content.style.height="auto";
+  content.style.overflow="visible";
   content.querySelectorAll(".notice,.actions").forEach(el=>el.remove());
   const wrapper=document.createElement("div");
   wrapper.style.cssText="font-family:Georgia,'Times New Roman',serif;color:#111;background:#fff;padding:24px 28px;font-size:12pt;line-height:1.65;width:100%;";
@@ -83,7 +93,7 @@ function downloadPDF(){
   wrapper.querySelectorAll("h1,h2,h3,h4").forEach(h=>{h.style.fontWeight="bold";h.style.textDecoration="underline";h.style.textUnderlineOffset="3px";h.style.color="#111";h.style.pageBreakAfter="avoid";});
   wrapper.querySelectorAll("p,li").forEach(el=>{el.style.color="#111";el.style.fontSize="12pt";el.style.lineHeight="1.65";});
   wrapper.querySelectorAll("p").forEach(p=>{if(p.textContent.trim() && !p.querySelector("li")){p.style.marginBottom="10px";}});
-  const options={margin:[15,15,18,15],filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};
+  const options={margin:[15,15,18,15],filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:["h1","h2","h3","h4","li","tr"]}};
   showToast("Preparing your PDF download…");
   html2pdf().set(options).from(wrapper).save().then(()=>showToast("PDF downloaded to your computer." )).catch(()=>showToast("PDF could not be created. Please try again."));
 }
@@ -108,5 +118,3 @@ renderLibrary();
 </script>
 </body>
 </html>
-
-
