@@ -1,702 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b1020">
-<meta name="description" content="MY AI — your personal assignment and study companion.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020"><meta name="description" content="MY AI — your personal study companion">
 <title>MY AI — Your Personal Study Companion</title>
-
-<!-- Custom MY AI favicon -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='%230b1020'/%3E%3Cpath d='M22 70V29h10l18 22 18-22h10v41H67V47L50 67 33 47v23z' fill='url(%23g)'/%3E%3C/svg%3E">
-
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230b1020'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='58' font-family='Arial' font-weight='bold' fill='%239274ff'%3EM%3C/text%3E%3C/svg%3E">
 <style>
-:root {
-  --bg:#080c18;
-  --panel:#101729;
-  --panel2:#151e32;
-  --line:rgba(255,255,255,.09);
-  --text:#f3f5ff;
-  --muted:#96a2bc;
-  --purple:#9274ff;
-  --cyan:#58d9ff;
-  --green:#6de4b1;
-}
-* { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body {
-  margin:0;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(ellipse at 5% 0%,rgba(104,77,255,.13),transparent 34%),
-    radial-gradient(ellipse at 100% 25%,rgba(34,185,255,.07),transparent 28%),
-    var(--bg);
-  min-height:100vh;
-}
-button,input,textarea,select { font:inherit; }
-button { cursor:pointer; }
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible {
-  outline:2px solid var(--cyan);
-  outline-offset:3px;
-}
-.topbar {
-  height:76px;
-  padding:0 6%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid var(--line);
-  background:rgba(8,12,24,.8);
-  backdrop-filter:blur(16px);
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-.brand { display:flex; align-items:center; gap:12px; }
-.logo {
-  width:43px;height:43px;border-radius:14px;
-  display:grid;place-items:center;
-  background:linear-gradient(135deg,#7c5cff,#19c9ff);
-  color:white;font-size:23px;font-weight:900;
-  box-shadow:0 5px 24px #7555ff40;
-}
-.brand-name { font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1; }
-.brand-name span {
-  background:linear-gradient(90deg,#a88dff,#57ddff);
-  color:transparent;background-clip:text;
-}
-.brand-sub { font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:6px; }
-.status { color:var(--green);font-size:12px;display:flex;align-items:center;gap:7px; }
-.dot { width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #6de4b188; }
-main { width:min(1120px,90%);margin:auto; }
-.hero { padding:66px 0 38px;animation:rise .7s ease both; }
-.eyebrow {
-  color:#b4a3ff;font-size:11px;font-weight:800;letter-spacing:2px;
-  display:flex;align-items:center;gap:9px;text-transform:uppercase;
-}
-.eyebrow:before { content:"";width:24px;height:1px;background:var(--purple); }
-h1 { font-size:clamp(36px,6vw,62px);line-height:1.08;letter-spacing:-2.5px;margin:20px 0 16px;max-width:750px; }
-.gradient-text { background:linear-gradient(100deg,#b39bff,#67dfff);color:transparent;background-clip:text; }
-.hero p { color:var(--muted);font-size:15px;line-height:1.8;max-width:650px;margin:0; }
-.features { display:flex;gap:9px;flex-wrap:wrap;margin-top:23px; }
-.pill { padding:9px 12px;border:1px solid var(--line);background:#ffffff05;border-radius:30px;color:#d4d9e9;font-size:12px; }
-.layout { display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:60px; }
-.card { background:linear-gradient(145deg,#121a2d,#0e1424);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 15px 50px #00000012; }
-.card-head { padding:23px 24px 19px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:center; }
-.card-icon { width:43px;height:43px;display:grid;place-items:center;background:#9074ff18;border:1px solid #9074ff30;border-radius:13px;font-size:21px; }
-.card-head h2 { font-size:16px;margin:0 0 5px; }
-.card-head p { font-size:12px;color:var(--muted);margin:0; }
-.card-body { padding:23px 24px; }
-label { display:block;font-size:12px;font-weight:700;color:#dfe4f5;margin-bottom:9px; }
-input,textarea,select {
-  display:block;width:100%;color:var(--text);background:#080e1c;
-  border:1px solid #29334b;border-radius:11px;padding:13px 14px;
-  transition:border .2s,box-shadow .2s;
-}
-input:focus,textarea:focus,select:focus { outline:none;border-color:var(--purple);box-shadow:0 0 0 3px #9274ff19; }
-input::placeholder,textarea::placeholder { color:#65718b; }
-textarea { min-height:105px;resize:vertical;line-height:1.6; }
-select { appearance:auto; }
-.field { margin-bottom:19px; }
-.two { display:grid;grid-template-columns:1fr 1fr;gap:13px; }
-.hint { font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px; }
-.primary,.secondary {
-  border:0;border-radius:11px;padding:13px 17px;font-weight:750;
-  transition:transform .2s,filter .2s;
-}
-.primary { color:white;background:linear-gradient(100deg,#7957f7,#458dfb);box-shadow:0 7px 24px #7957f729; }
-.secondary { color:#e2e8ff;background:#ffffff08;border:1px solid var(--line); }
-.primary:hover,.secondary:hover { transform:translateY(-2px);filter:brightness(1.1); }
-.full { width:100%; }
-.tabs { display:flex;gap:7px;padding:14px 18px;border-bottom:1px solid var(--line);overflow-x:auto; }
-.tab { white-space:nowrap;padding:9px 12px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:700; }
-.tab.active { color:white;background:#9274ff20;border-color:#9274ff42; }
-.result-body { padding:22px; }
-.empty { min-height:355px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px; }
-.empty-icon { width:76px;height:76px;border-radius:23px;background:linear-gradient(145deg,#9274ff22,#58d9ff12);border:1px solid #9274ff25;display:grid;place-items:center;font-size:32px;margin-bottom:20px; }
-.empty h3 { margin:0 0 9px;font-size:17px; }
-.empty p { color:var(--muted);font-size:12px;line-height:1.8;max-width:290px;margin:0; }
-.output { display:none; }
-.output h2 { font-size:23px;line-height:1.35;letter-spacing:-.5px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px; }
-.output h3 { margin-top:24px;font-size:15px;color:#c7baff;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px; }
-.output p,.output li { font-size:13px;line-height:1.9;color:#c7d0e3; }
-.output ul { padding-left:22px;margin:10px 0 18px; }
-.output li { margin:5px 0; }
-.output .notice { border:1px solid #f0bf5833;background:#f0bf580b;color:#e8cc8d;border-radius:10px;padding:12px;font-size:11px;line-height:1.7; }
-.actions { display:flex;gap:8px;flex-wrap:wrap;margin-top:18px; }
-.actions button { flex:1;min-width:105px;font-size:12px; }
-.study-area { display:none; }
-.study-area h3 { color:#d4caff; }
-.flashcard { border:1px solid var(--line);border-radius:14px;padding:20px;background:#ffffff04;margin-top:15px; }
-.flashcard strong { display:block;margin-bottom:10px;font-size:14px; }
-.flashcard p { color:var(--muted);font-size:13px;line-height:1.8; }
-.quiz-q { padding:15px 0;border-bottom:1px solid var(--line); }
-.quiz-q p { font-size:13px;line-height:1.7; }
-.quiz-q label { font-weight:400;color:#cbd3e5;line-height:1.7;display:flex;gap:9px;align-items:flex-start; }
-.quiz-q input { width:auto;margin-top:4px; }
-footer { text-align:center;padding:25px 10px 40px;color:#69758f;font-size:11px;line-height:1.8;border-top:1px solid var(--line); }
-footer strong { color:#aeb9d2; }
-.toast { display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a2540;border:1px solid #ffffff20;color:white;border-radius:12px;padding:13px 18px;font-size:12px;z-index:10;max-width:90%;box-shadow:0 10px 35px #0008; }
-@keyframes rise { from {opacity:0;transform:translateY(14px)} to {opacity:1;transform:translateY(0)} }
-@media(max-width:760px) {
-  .topbar { height:67px;padding:0 5%; }
-  .brand-name { font-size:23px;letter-spacing:-.6px; }
-  .status { font-size:10px; }
-  main { width:92%; }
-  .hero { padding:45px 0 28px; }
-  h1 { letter-spacing:-1.5px; }
-  .layout { grid-template-columns:1fr;gap:17px; }
-  .card-body { padding:19px; }
-  .card-head { padding:19px; }
-  .two { gap:10px; }
-  .result-body { padding:17px; }
-}
-@media(prefers-reduced-motion:reduce) {
-  *,*::before,*::after { animation:none!important;scroll-behavior:auto!important;transition:none!important; }
-}
-@media print {
-  body { background:white!important;color:#111!important; }
-  body * { visibility:hidden!important; }
-  #output,#output * { visibility:visible!important;color:#111!important;background:white!important;box-shadow:none!important; }
-  #output { display:block!important;position:absolute;left:0;top:0;width:100%;padding:20px;font-family:Georgia,serif; }
-  #output h2 { font-size:23pt; }
-  #output h3 { font-size:15pt;color:#222!important; }
-  #output p,#output li { font-size:11pt;line-height:1.65; }
-  #output .notice,#output .actions { display:none!important; }
-  @page { margin:20mm; }
-}
-
-/* MY AI document library */
-.library-wrap{width:min(1120px,90%);margin:0 auto 64px}
-.library-card{background:linear-gradient(145deg,#121a2d,#0e1424);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 15px 50px #00000018}
-.library-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:8px}
-.library-head h2{margin:0;font-size:22px}
-.library-head p,.library-note{color:var(--muted);font-size:12px;line-height:1.65}
-.library-tools{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.library-tools input{max-width:280px}
-.library-list{display:grid;gap:10px}
-.library-item{border:1px solid #29334b;background:#0a1020;border-radius:14px;padding:15px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
-.library-item h3{font-size:14px;margin:0 0 7px;overflow-wrap:anywhere}
-.library-meta{font-size:11px;color:var(--muted);line-height:1.7}
-.library-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.small-btn{border:1px solid #34415d;background:#151e32;color:#e8ecfb;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}
-.small-btn:hover{border-color:var(--purple)}
-.small-btn.danger{color:#ffb8c1}
-.save-controls{display:flex;gap:9px;flex-wrap:wrap;padding:12px 24px;border-bottom:1px solid var(--line)}
-.save-controls .primary,.save-controls .secondary{font-size:12px;padding:10px 13px}
-.empty-library{padding:24px;border:1px dashed #34415d;border-radius:14px;color:var(--muted);text-align:center;font-size:13px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;background:#e9eaff;color:#11172a;padding:12px 17px;border-radius:12px;font-size:13px;font-weight:750;box-shadow:0 10px 40px #0008;max-width:90%;text-align:center}
-@keyframes floatGlow{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(-12px);opacity:1}}
-body:before{content:"";position:fixed;z-index:-1;top:16%;right:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#6b56ff25,transparent 70%);filter:blur(10px);animation:floatGlow 9s ease-in-out infinite;pointer-events:none}
-@media(max-width:650px){.library-item{grid-template-columns:1fr}.library-actions{justify-content:flex-start}.library-card{padding:16px}.library-tools input{max-width:none}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
-
+:root{--bg:#080c18;--panel:#101729;--line:#ffffff17;--text:#f3f5ff;--muted:#96a2bc;--purple:#9274ff;--cyan:#58d9ff;--green:#6de4b1}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at 5% 0%,#684dff22,transparent 34%),radial-gradient(ellipse at 100% 25%,#22b9ff12,transparent 28%),var(--bg);min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}.topbar{min-height:76px;padding:12px 6%;display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:1px solid var(--line);background:#080c18e8;backdrop-filter:blur(16px);position:sticky;top:0;z-index:5}.brand{display:flex;align-items:center;gap:12px}.logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#19c9ff);font-size:23px;font-weight:900}.brand-name{font-size:29px;font-weight:900;letter-spacing:-1px}.brand-name span{background:linear-gradient(90deg,#a88dff,#57ddff);color:transparent;background-clip:text}.brand-sub{font-size:9px;color:var(--muted);letter-spacing:1.8px;margin-top:3px}.status{font-size:12px;color:var(--green)}main{width:min(1120px,92%);margin:auto}.hero{padding:62px 0 35px;animation:rise .7s ease both}.eyebrow{color:#b4a3ff;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}.eyebrow:before{content:"";display:inline-block;width:24px;height:1px;background:var(--purple);vertical-align:middle;margin-right:9px}h1{font-size:clamp(36px,6vw,62px);line-height:1.08;letter-spacing:-2px;margin:18px 0}.gradient-text{background:linear-gradient(100deg,#b39bff,#67dfff);color:transparent;background-clip:text}.hero p{color:var(--muted);font-size:15px;line-height:1.8;max-width:700px}.features{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.pill{padding:9px 12px;border:1px solid var(--line);background:#ffffff05;border-radius:30px;font-size:12px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:32px}.card,.library-card{background:linear-gradient(145deg,#121a2d,#0e1424);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 15px 50px #0002}.card-head{padding:22px 24px 18px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:center}.card-icon{width:43px;height:43px;display:grid;place-items:center;background:#9074ff18;border:1px solid #9074ff30;border-radius:13px;font-size:21px}.card-head h2{font-size:16px;margin:0 0 5px}.card-head p{font-size:12px;color:var(--muted);margin:0}.card-body{padding:22px 24px}label{display:block;font-size:12px;font-weight:700;color:#dfe4f5;margin-bottom:8px}input,textarea,select{display:block;width:100%;color:var(--text);background:#080e1c;border:1px solid #29334b;border-radius:11px;padding:13px 14px}input:focus,textarea:focus,select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px #9274ff19}input::placeholder,textarea::placeholder{color:#65718b}textarea{min-height:100px;resize:vertical;line-height:1.6}.field{margin-bottom:17px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hint,.library-note{font-size:11px;color:var(--muted);line-height:1.7}.primary,.secondary{border-radius:11px;padding:12px 16px;font-weight:750;transition:transform .2s,filter .2s}.primary{border:0;color:white;background:linear-gradient(100deg,#7957f7,#458dfb);box-shadow:0 7px 24px #7957f729}.secondary{color:#e2e8ff;background:#ffffff08;border:1px solid var(--line)}.primary:hover,.secondary:hover{transform:translateY(-2px);filter:brightness(1.1)}.full{width:100%}.save-controls,.tabs{display:flex;gap:7px;flex-wrap:wrap;padding:13px 18px;border-bottom:1px solid var(--line)}.save-controls button{font-size:12px;padding:10px 12px}.tab{padding:9px 12px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:700}.tab.active{color:white;background:#9274ff20;border-color:#9274ff42}.result-body{padding:21px}.empty{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}.empty-icon{width:70px;height:70px;border-radius:22px;background:#9274ff22;border:1px solid #9274ff33;display:grid;place-items:center;font-size:30px;margin-bottom:18px}.empty h3{margin:0 0 8px}.empty p{color:var(--muted);font-size:12px;line-height:1.8;max-width:300px}.output,.study-area{display:none}.output h2,.study-area h2{font-size:23px;line-height:1.35;text-underline-offset:6px}.output h3,.study-area h3{margin-top:24px;font-size:15px;color:#c7baff}.output p,.output li,.study-area p,.study-area li{font-size:13px;line-height:1.9;color:#c7d0e3}.output ul,.output ol,.study-area ul,.study-area ol{padding-left:22px}.notice{border:1px solid #f0bf5833;background:#f0bf580b;color:#e8cc8d;border-radius:10px;padding:12px;font-size:11px;line-height:1.7}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.actions button{flex:1}.library-wrap{width:min(1120px,92%);margin:0 auto 60px}.library-card{padding:23px}.library-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.library-head h2{margin:0}.library-head p{font-size:12px;color:var(--muted)}.library-tools{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.library-tools input{max-width:300px}.library-list{display:grid;gap:10px}.library-item{border:1px solid #29334b;background:#0a1020;border-radius:14px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.library-item h3{font-size:14px;margin:0 0 7px;overflow-wrap:anywhere}.library-meta{font-size:11px;color:var(--muted);line-height:1.7}.library-actions{display:flex;gap:6px;flex-wrap:wrap}.small-btn{border:1px solid #34415d;background:#151e32;color:#e8ecfb;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}.danger{color:#ffb8c1}.empty-library{padding:24px;border:1px dashed #34415d;border-radius:14px;color:var(--muted);text-align:center;font-size:13px}footer{text-align:center;padding:25px 10px 40px;color:#69758f;font-size:11px;line-height:1.8;border-top:1px solid var(--line)}footer strong{color:#aeb9d2}.toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#e9eaff;color:#11172a;border-radius:12px;padding:12px 17px;font-size:13px;font-weight:750;z-index:30;max-width:90%;box-shadow:0 10px 40px #0008;text-align:center}@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@media(max-width:760px){.topbar{padding:12px 4%}.brand-name{font-size:23px}.brand-sub{font-size:8px;letter-spacing:1px}.status{font-size:10px}.hero{padding:42px 0 25px}.layout{grid-template-columns:1fr}.card-body{padding:18px}.card-head{padding:18px}.library-card{padding:16px}.library-item{grid-template-columns:1fr}.library-tools input{max-width:none}}@media(max-width:430px){.two{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+@media print{body *{visibility:hidden!important}#output,#output *{visibility:visible!important;color:#111!important;background:white!important;box-shadow:none!important}#output{display:block!important;position:absolute;left:0;top:0;width:100%;padding:20px;font-family:Georgia,serif}#output .notice,#output .actions{display:none!important}@page{margin:20mm}}
 </style>
 </head>
-
 <body>
-<header class="topbar">
-  <div class="brand">
-    <div class="logo">M</div>
-    <div>
-      <div class="brand-name">MY <span>AI</span></div>
-      <div class="brand-sub">YOUR PERSONAL STUDY COMPANION</div>
-    </div>
-  </div>
-  <div class="status"><span class="dot"></span> Workspace ready</div>
-</header>
-
+<header class="topbar"><div class="brand"><div class="logo">M</div><div><div class="brand-name">MY <span>AI</span></div><div class="brand-sub">YOUR PERSONAL STUDY COMPANION</div></div></div><div class="status">● AI workspace</div></header>
 <main>
-  <section class="hero">
-    <div class="eyebrow">Your personal learning space</div>
-    <h1>Think smarter.<br><span class="gradient-text">Study better.</span></h1>
-    <p>Create, organize and revisit your study materials in one focused workspace. Save drafts to your personal library, rename documents and download a timestamped copy whenever you need it.</p>
-    <div class="features">
-      <span class="pill">✦ Assignment drafts</span>
-      <span class="pill">▤ PDF export</span>
-      <span class="pill">✧ Revision tools</span>
-      <span class="pill">✓ Self-testing</span>
-    </div>
-  </section>
-
-  <section class="layout">
-    <div class="card">
-      <div class="card-head">
-        <div class="card-icon">✎</div>
-        <div><h2>Assignment Studio</h2><p>Start with your topic and requirements.</p></div>
-      </div>
-      <div class="card-body">
-        <form id="assignmentForm">
-          <div class="field">
-            <label for="studentName">YOUR NAME (FOR SAVED FILES)</label>
-            <input id="studentName" placeholder="Enter your name">
-            <p class="hint">This name is stored with your saved documents on this browser.</p>
-          </div>
-          <div class="field">
-            <label for="topic">ASSIGNMENT TOPIC *</label>
-            <textarea id="topic" required placeholder="e.g. The impact of artificial intelligence on education"></textarea>
-          </div>
-          <div class="two">
-            <div class="field">
-              <label for="subject">SUBJECT</label>
-              <input id="subject" placeholder="e.g. Computer Science">
-            </div>
-            <div class="field">
-              <label for="level">STUDY LEVEL</label>
-              <select id="level">
-                <option>University / Bachelor's</option>
-                <option>Intermediate / College</option>
-                <option>Master's / MS</option>
-                <option>School</option>
-              </select>
-            </div>
-          </div>
-          <div class="two">
-            <div class="field">
-              <label for="semester">UNIVERSITY SEMESTER</label>
-              <select id="semester">
-                <option value="">Select semester</option>
-                <option>Semester 1</option><option>Semester 2</option>
-                <option>Semester 3</option><option>Semester 4</option>
-                <option>Semester 5</option><option>Semester 6</option>
-                <option>Semester 7</option><option>Semester 8</option>
-                <option>Semester 9</option><option>Semester 10</option>
-                <option>Semester 11</option><option>Semester 12</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="length">LENGTH</label>
-              <select id="length">
-                <option>3–5 pages</option>
-                <option selected>8–10 pages</option>
-                <option>15–20 pages</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="language">LANGUAGE</label>
-              <select id="language">
-                <option>English</option>
-                <option>Urdu</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label for="student">STUDENT NAME (OPTIONAL)</label>
-            <input id="student" placeholder="Your name">
-          </div>
-          <div class="two">
-            <div class="field">
-              <label for="university">UNIVERSITY (OPTIONAL)</label>
-              <input id="university" placeholder="University name">
-            </div>
-            <div class="field">
-              <label for="roll">ROLL NUMBER (OPTIONAL)</label>
-              <input id="roll" placeholder="Your roll number">
-            </div>
-          </div>
-          <div class="field">
-            <label for="instructions">TEACHER'S INSTRUCTIONS (OPTIONAL)</label>
-            <textarea id="instructions" placeholder="Required headings, citation style, questions, etc." style="min-height:75px"></textarea>
-          </div>
-          <button class="primary full" type="submit">✦ Create assignment draft</button>
-          <p class="hint">Semester and formatting options are included. Full-length AI-generated assignments require the secure AI connection we will set up next.</p>
-        </form>
-      </div>
-    </div>
-
-    <div class="card" id="workspace">
-      <div class="card-head">
-        <div class="card-icon">▤</div>
-        <div><h2>Your Workspace</h2><p>Your draft and study materials appear here.</p></div>
-      </div>
-      <div class="save-controls">
-        <button class="primary" type="button" id="saveCurrentBtn">＋ Save to My Library</button>
-        <button class="secondary" type="button" id="downloadCurrentBtn">↓ Download current document</button>
-      </div>
-      <div class="tabs">
-        <button class="tab active" data-tab="assignment">Assignment</button>
-        <button class="tab" data-tab="notes">Study notes</button>
-        <button class="tab" data-tab="quiz">Quick quiz</button>
-      </div>
-      <div class="result-body">
-        <div class="empty" id="emptyState">
-          <div class="empty-icon">✧</div>
-          <h3>Your next big idea starts here.</h3>
-          <p>Enter your assignment topic to create a structured draft and start preparing your study materials.</p>
-        </div>
-
-        <article class="output" id="output"></article>
-
-        <section class="study-area" id="notesArea">
-          <h3>Study notes</h3>
-          <p id="notesIntro">Create an assignment draft first to prepare a study outline.</p>
-          <div id="notesContent"></div>
-        </section>
-
-        <section class="study-area" id="quizArea">
-          <h3>Check your understanding</h3>
-          <p id="quizIntro">Create a draft first to unlock a basic topic-based practice quiz.</p>
-          <div id="quizContent"></div>
-        </section>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <strong>MY AI</strong> · Your personal study companion<br>
-  Use your course materials to verify facts and references. Review and understand your work before submission.
-</footer>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+<section class="hero"><div class="eyebrow">Your personal learning space</div><h1>Think smarter.<br><span class="gradient-text">Study better.</span></h1><p>Create assignments, study notes, explanations and practice quizzes with AI. Save materials in your personal browser library and download copies whenever you need them.</p><div class="features"><span class="pill">✦ AI assignments</span><span class="pill">▤ PDF / print</span><span class="pill">✧ Study notes</span><span class="pill">✓ Practice quizzes</span></div></section>
+<section class="layout">
+<div class="card"><div class="card-head"><div class="card-icon">✎</div><div><h2>Study Studio</h2><p>Enter a topic and your study requirements.</p></div></div><div class="card-body">
+<form id="assignmentForm">
+<div class="field"><label for="studentName">YOUR NAME (FOR SAVED FILES)</label><input id="studentName" placeholder="Enter your name"><p class="hint">Your library is stored in this browser only.</p></div>
+<div class="field"><label for="topic">TOPIC *</label><textarea id="topic" required placeholder="e.g. The impact of artificial intelligence on education"></textarea></div>
+<div class="two"><div class="field"><label for="subject">SUBJECT</label><input id="subject" placeholder="e.g. Computer Science"></div><div class="field"><label for="level">STUDY LEVEL</label><select id="level"><option>University / Bachelor's</option><option>Intermediate / College</option><option>Master's / MS</option><option>School</option></select></div></div>
+<div class="two"><div class="field"><label for="semester">SEMESTER</label><select id="semester"><option value="">Select semester</option><option>Semester 1</option><option>Semester 2</option><option>Semester 3</option><option>Semester 4</option><option>Semester 5</option><option>Semester 6</option><option>Semester 7</option><option>Semester 8</option><option>Semester 9</option><option>Semester 10</option><option>Semester 11</option><option>Semester 12</option></select></div><div class="field"><label for="length">LENGTH</label><select id="length"><option value="short">Short</option><option value="medium" selected>Medium</option><option value="long">Long</option></select></div></div>
+<div class="field"><label for="language">LANGUAGE</label><select id="language"><option>English</option><option>Urdu</option></select></div>
+<div class="field"><label for="student">STUDENT NAME (OPTIONAL)</label><input id="student" placeholder="Your name"></div>
+<div class="two"><div class="field"><label for="university">UNIVERSITY (OPTIONAL)</label><input id="university" placeholder="University name"></div><div class="field"><label for="roll">ROLL NUMBER (OPTIONAL)</label><input id="roll" placeholder="Your roll number"></div></div>
+<div class="field"><label for="instructions">TEACHER'S INSTRUCTIONS (OPTIONAL)</label><textarea id="instructions" placeholder="Required headings, citation style, questions, etc." style="min-height:75px"></textarea></div>
+<button class="primary full" id="generateBtn" type="submit">✦ Generate with MY AI</button><p class="hint">Choose a workspace tab first, then generate. Always verify facts and references.</p>
+</form></div></div>
+<div class="card" id="workspace"><div class="card-head"><div class="card-icon">▤</div><div><h2>Your Workspace</h2><p>Your AI-generated study materials appear here.</p></div></div>
+<div class="save-controls"><button class="primary" id="saveCurrentBtn" type="button">＋ Save to My Library</button><button class="secondary" id="downloadCurrentBtn" type="button">↓ Download current</button></div>
+<div class="tabs"><button class="tab active" data-tab="assignment">Assignment</button><button class="tab" data-tab="notes">Study notes</button><button class="tab" data-tab="quiz">Quick quiz</button><button class="tab" data-tab="explanation">Explanation</button></div>
+<div class="result-body"><div class="empty" id="emptyState"><div class="empty-icon">✧</div><h3>Your next big idea starts here.</h3><p>Enter a topic and select a workspace tab. MY AI will generate content for that task.</p></div><article class="output" id="output"></article><section class="study-area" id="notesArea"><h3>Study notes</h3><div id="notesContent"></div></section><section class="study-area" id="quizArea"><h3>Practice quiz</h3><div id="quizContent"></div></section><section class="study-area" id="explanationArea"><h3>Topic explanation</h3><div id="explanationContent"></div></section></div></div>
+</section></main>
+<section class="library-wrap"><div class="library-card"><div class="library-head"><div><h2>My Library</h2><p>Saved documents, rename controls and download history.</p></div><strong id="libraryCount">0 saved documents</strong></div><div class="library-tools"><input id="librarySearch" placeholder="Search saved documents…"><button class="secondary" id="exportLibraryBtn" type="button">Export library backup</button></div><div class="library-list" id="libraryList"><div class="empty-library">Your saved documents will appear here.</div></div><p class="library-note">Documents are stored in this browser's local storage. They do not sync automatically across devices or browsers. Export a backup to keep a copy.</p></div></section>
+<footer><strong>MY AI</strong> · Your personal study companion<br>Use your course materials to verify facts and references. Review and understand your work before submission.</footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-const $ = id => document.getElementById(id);
-let currentTab = "assignment";
-let currentTopic = "";
-let toastTimer;
-
-function showToast(message) {
-  const toast = $("toast");
-  toast.textContent = message;
-  toast.style.display = "block";
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.style.display = "none", 3200);
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, ch => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[ch]);
-}
-
-function setTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll(".tab").forEach(button => {
-    button.classList.toggle("active", button.dataset.tab === tab);
-  });
-  $("emptyState").style.display = currentTopic ? "none" : "flex";
-  $("output").style.display = currentTopic && tab === "assignment" ? "block" : "none";
-  $("notesArea").style.display = currentTopic && tab === "notes" ? "block" : "none";
-  $("quizArea").style.display = currentTopic && tab === "quiz" ? "block" : "none";
-}
-
-document.querySelectorAll(".tab").forEach(button => {
-  button.addEventListener("click", () => setTab(button.dataset.tab));
-});
-
-$("assignmentForm").addEventListener("submit", event => {
-  event.preventDefault();
-  currentTopic = $("topic").value.trim();
-  if (!currentTopic) {
-    showToast("Please enter your assignment topic.");
-    return;
-  }
-
-  const topic = escapeHTML(currentTopic);
-  const subject = escapeHTML($("subject").value.trim() || "General Studies");
-  const semester = escapeHTML($("semester").value || "Not specified");
-  const level = escapeHTML($("level").value);
-  const length = escapeHTML($("length").value);
-  const language = escapeHTML($("language").value);
-  const student = escapeHTML($("student").value.trim() || "________________");
-  const university = escapeHTML($("university").value.trim() || "________________");
-  const roll = escapeHTML($("roll").value.trim() || "________________");
-  const instructions = escapeHTML($("instructions").value.trim());
-
-  $("output").innerHTML = `
-    <div class="notice"><strong>Structured outline — AI is not connected yet.</strong><br>
-    This is a structured outline, not a completed 8–10 page assignment. After the AI backend is connected, it can generate a fuller draft and follow your formatting instructions.</div>
-    <h2>${topic}</h2>
-    <p><strong>Subject:</strong> ${subject}<br><strong>Study level:</strong> ${level}<br><strong>University semester:</strong> ${semester}<br><strong>Suggested length:</strong> ${length}<br><strong>Language:</strong> ${language}</p>
-    <h3>Assignment cover details</h3>
-    <p><strong>University:</strong> ${university}<br><strong>Semester:</strong> ${semester}<br><strong>Student:</strong> ${student}<br><strong>Roll number:</strong> ${roll}<br><strong>Subject:</strong> ${subject}</p>
-    <h3>1. Introduction</h3>
-    <ul>
-      <li>Introduce the topic: <strong>${topic}</strong>.</li>
-      <li>Explain the background and define the key concepts using reliable course materials.</li>
-      <li>State the purpose of the assignment and why the topic matters in ${subject}.</li>
-    </ul>
-    <h3>2. Background and key concepts</h3>
-    <ul>
-      <li>Define the important terms related to the topic.</li>
-      <li>Summarize relevant theories and established knowledge from textbooks or credible academic sources.</li>
-      <li>Add citations for factual claims and verify each source before submission.</li>
-    </ul>
-    <h3>3. Main discussion</h3>
-    <ul>
-      <li>Divide the main discussion into topic-specific subheadings.</li>
-      <li>Explain each major idea in detail, using examples and evidence.</li>
-      <li>Compare relevant viewpoints and connect the discussion to the assignment objective.</li>
-    </ul>
-    <h3>4. Examples and analysis</h3>
-    <ul>
-      <li>Include relevant real-world examples, data, or case studies where available.</li>
-      <li>Explain what each example demonstrates and how it relates to the topic.</li>
-      <li>Discuss practical applications and implications.</li>
-    </ul>
-    <h3>5. Challenges and limitations</h3>
-    <ul>
-      <li>Identify relevant problems, counterarguments, limitations, or unanswered questions.</li>
-      <li>Support the analysis with trustworthy sources and explain why these issues matter.</li>
-    </ul>
-    <h3>6. Conclusion</h3>
-    <ul>
-      <li>Summarize the main points discussed in the assignment.</li>
-      <li>Answer the assignment objective using the evidence already presented.</li>
-      <li>Do not introduce new claims that have not been supported in the main discussion.</li>
-    </ul>
-    <h3>7. References</h3>
-    <ul>
-      <li>List only the books, academic papers, and reliable websites actually consulted.</li>
-      <li>Use the citation style required by your instructor and verify every reference detail.</li>
-    </ul>
-    ${instructions ? `<h3>Instructor's instructions</h3><p>${instructions}</p>` : ""}
-    <div class="actions">
-      <button class="secondary" id="copyBtn" type="button">Copy draft</button>
-      <button class="primary" id="pdfBtn" type="button">Download PDF</button>
-    </div>`;
-
-  $("notesIntro").textContent = `Revision outline for: ${currentTopic}`;
-  $("notesContent").innerHTML = `
-    <div class="flashcard"><strong>Remember the structure</strong><p>Introduction → Key concepts → Main discussion → Examples → Limitations → Conclusion → References.</p></div>
-    <div class="flashcard"><strong>Explain it in your own words</strong><p>Write a two-sentence explanation of "${topic}" from memory. Then check it against your course materials.</p></div>
-    <div class="flashcard"><strong>Active recall</strong><p>Without looking at your notes, list three important concepts connected to the topic and explain each one.</p></div>
-    <div class="flashcard"><strong>Check your sources</strong><p>Confirm key facts in your textbook or academic sources. Never include a reference you have not verified.</p></div>`;
-
-  $("quizIntro").textContent = `Practice questions for: ${currentTopic}`;
-  $("quizContent").innerHTML = `
-    <div class="quiz-q"><p><strong>1. What should an introduction usually do?</strong></p>
-      <label><input type="radio" name="q1" value="a"> Present the topic and its context</label>
-      <label><input type="radio" name="q1" value="b"> List unrelated facts</label>
-      <label><input type="radio" name="q1" value="c"> Replace the conclusion</label></div>
-    <div class="quiz-q"><p><strong>2. What makes a reference reliable?</strong></p>
-      <label><input type="radio" name="q2" value="a"> It sounds convincing</label>
-      <label><input type="radio" name="q2" value="b"> Its details and claims can be verified</label>
-      <label><input type="radio" name="q2" value="c"> It has no author or title</label></div>
-    <div class="quiz-q"><p><strong>3. What is a good way to remember material?</strong></p>
-      <label><input type="radio" name="q3" value="a"> Read it once only</label>
-      <label><input type="radio" name="q3" value="b"> Copy it without understanding</label>
-      <label><input type="radio" name="q3" value="c"> Practise recalling it and test yourself</label></div>
-    <button class="primary full" id="checkQuiz" type="button">Check my answers</button>
-    <p id="quizScore" aria-live="polite"></p>`;
-
-  $("copyBtn").addEventListener("click", copyDraft);
-  $("pdfBtn").addEventListener("click", downloadPDF);
-  $("checkQuiz").addEventListener("click", checkQuiz);
-  setTab("assignment");
-  $("workspace").scrollIntoView({behavior:"smooth",block:"start"});
-  showToast("Outline created. Connect AI next for a full-length assignment.");
-});
-
-
-function downloadPDF() {
-  // Build a lightweight, valid PDF locally, without opening the browser print dialog.
-  const rawText = $("output").innerText
-    .replace(/Copy draft/g, "")
-    .replace(/Download PDF/g, "")
-    .split("\n")
-    .map(line => line.trim())
-    .filter(Boolean);
-  const metadata = [
-    "MY AI STUDENT DOCUMENT",
-    "Created by: " + (($("studentName")?.value || "Student").trim() || "Student"),
-    "Created / downloaded: " + new Date().toLocaleString(),
-    "Topic: " + (($("topic")?.value || "Assignment").trim()),
-    ""
-  ];
-  const clean = [...metadata, ...rawText]
-    .filter(line => !line.includes("Structured outline — AI is not connected yet."))
-    .filter(line => !line.includes("This version runs without an AI service."))
-    .map(line => line.replace(/[^\x20-\x7E]/g, " "));
-  const lines = [];
-  clean.forEach(line => {
-    const words = line.split(/\s+/);
-    let current = "";
-    words.forEach(word => {
-      if ((current + " " + word).trim().length > 88) {
-        if (current) lines.push(current);
-        current = word;
-      } else current = (current ? current + " " : "") + word;
-    });
-    if (current) lines.push(current);
-    lines.push("");
-  });
-  const pages = [];
-  for (let i = 0; i < lines.length; i += 48) pages.push(lines.slice(i, i + 48));
-  if (!pages.length) pages.push(["MY AI", "", "No assignment content available."]);
-  const objects = [];
-  const add = value => { objects.push(value); return objects.length; };
-  const catalogId = add("");
-  const pagesId = add("");
-  const fontId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  const pageIds = [];
-  const contentIds = [];
-  pages.forEach(pageLines => {
-    let stream = "BT\n/F1 10 Tf\n50 790 Td\n14 TL\n";
-    pageLines.forEach((line, idx) => {
-      const escaped = line.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-      stream += `(${escaped}) Tj\nT*\n`;
-    });
-    stream += "ET";
-    const contentId = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-    contentIds.push(contentId);
-    const pageId = add("");
-    pageIds.push(pageId);
-  });
-  objects[catalogId - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
-  objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`;
-  pageIds.forEach((id, i) => {
-    objects[id - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentIds[i]} 0 R >>`;
-  });
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  objects.forEach((obj, i) => {
-    offsets.push(pdf.length);
-    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`;
-  });
-  const xrefOffset = pdf.length;
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  for (let i = 1; i < offsets.length; i++) pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-  const blob = new Blob([pdf], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const topicName = ($("topic").value || "assignment").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").slice(0, 55) || "assignment";
-  a.href = url;
-  a.download = `${topicName}-my-ai.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-  showToast("PDF download started.");
-}
-
-function copyDraft() {
-  const text = $("output").innerText;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => showToast("Draft copied."))
-      .catch(() => showToast("Copy is unavailable here. You can select the text manually."));
-  } else {
-    showToast("Select the draft text and copy it manually.");
-  }
-}
-
-function checkQuiz() {
-  const answers = {q1:"a",q2:"b",q3:"c"};
-  let score = 0;
-  let answered = 0;
-  Object.entries(answers).forEach(([name, answer]) => {
-    const selected = document.querySelector(`input[name="${name}"]:checked`);
-    if (selected) {
-      answered++;
-      if (selected.value === answer) score++;
-    }
-  });
-  $("quizScore").textContent = answered < 3
-    ? `You answered ${answered} of 3 questions. Finish the remaining questions.`
-    : `Your score: ${score}/3. ${score === 3 ? "Excellent work!" : "Review the answers and try again."}`;
-}
-
-
-// Local document library: browser-local storage only (not cloud synced).
-const LIBRARY_KEY = "myAI_document_library_v1";
-function readLibrary(){try{return JSON.parse(localStorage.getItem(LIBRARY_KEY)||"[]")}catch(e){return []}}
-function writeLibrary(items){localStorage.setItem(LIBRARY_KEY,JSON.stringify(items))}
-function escHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function nowStamp(){return new Date().toLocaleString(undefined,{year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})}
-function toast(message){const el=$("appToast");el.textContent=message;el.hidden=false;clearTimeout(window.__myAiToastTimer);window.__myAiToastTimer=setTimeout(()=>el.hidden=true,3200)}
-function currentDocument(){
-  const tab=typeof currentTab!=="undefined"?currentTab:"assignment";
-  const topic=($("topic")?.value||currentTopic||"Untitled document").trim();
-  let content="";
-  let html="";
-  if(tab==="notes"){html=$("notesContent")?.innerHTML||"";content=$("notesContent")?.innerText||"";}
-  else if(tab==="quiz"){html=$("quizContent")?.innerHTML||"";content=$("quizContent")?.innerText||"";}
-  else {html=$("output")?.innerHTML||"";content=$("output")?.innerText||"";}
-  if(!content.trim()) {
-    if($("output")?.innerText?.trim()){html=$("output").innerHTML;content=$("output").innerText;}
-    else {toast("Create a document first, then save it.");return null;}
-  }
-  const student=($("studentName")?.value||"Student").trim()||"Student";
-  return {id:"doc_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),name:topic.slice(0,90),type:tab==="notes"?"Study notes":tab==="quiz"?"Practice quiz":"Assignment",student,createdAt:new Date().toISOString(),createdLabel:nowStamp(),updatedAt:new Date().toISOString(),html,content,downloads:[]};
-}
-function saveCurrentDocument(){
-  const doc=currentDocument();if(!doc)return;
-  const items=readLibrary();items.unshift(doc);
-  try{writeLibrary(items);renderLibrary();toast("Saved to My Library on this device.");}
-  catch(e){toast("Storage is full. Export a backup or remove older documents.");}
-}
-function renderLibrary(){
-  const items=readLibrary();const query=($("librarySearch")?.value||"").toLowerCase().trim();
-  $("libraryCount").textContent=`${items.length} saved document${items.length===1?"":"s"}`;
-  const shown=items.filter(d=>[d.name,d.type,d.student,d.content].join(" ").toLowerCase().includes(query));
-  if(!shown.length){$("libraryList").innerHTML=`<div class="empty-library">${items.length?"No documents match your search.":"Your saved documents will appear here. Create a draft and select “Save to My Library”."}</div>`;return;}
-  $("libraryList").innerHTML=shown.map(d=>`<article class="library-item">
-    <div><h3>${escHtml(d.name||"Untitled document")}</h3>
-    <div class="library-meta">${escHtml(d.type||"Document")} · Created by ${escHtml(d.student||"Student")}<br>Created: ${escHtml(d.createdLabel||d.createdAt||"Unknown")}<br>Last updated: ${escHtml(d.updatedAt?new Date(d.updatedAt).toLocaleString():"—")} · Downloads: ${(d.downloads||[]).length}${(d.downloads||[]).length?`<br>Last downloaded: ${escHtml(d.downloads[d.downloads.length-1].at)}`:""}</div></div>
-    <div class="library-actions">
-      <button class="small-btn" data-open-doc="${escHtml(d.id)}">Open</button>
-      <button class="small-btn" data-rename-doc="${escHtml(d.id)}">Rename</button>
-      <button class="small-btn" data-download-doc="${escHtml(d.id)}">Download</button>
-      <button class="small-btn danger" data-delete-doc="${escHtml(d.id)}">Delete</button>
-    </div></article>`).join("");
-  $("libraryList").querySelectorAll("[data-open-doc]").forEach(b=>b.onclick=()=>openSavedDocument(b.dataset.openDoc));
-  $("libraryList").querySelectorAll("[data-rename-doc]").forEach(b=>b.onclick=()=>renameSavedDocument(b.dataset.renameDoc));
-  $("libraryList").querySelectorAll("[data-download-doc]").forEach(b=>b.onclick=()=>downloadSavedDocument(b.dataset.downloadDoc));
-  $("libraryList").querySelectorAll("[data-delete-doc]").forEach(b=>b.onclick=()=>deleteSavedDocument(b.dataset.deleteDoc));
-}
-function openSavedDocument(id){
-  const d=readLibrary().find(x=>x.id===id);if(!d)return;
-  $("topic").value=d.name||"";if($("studentName"))$("studentName").value=d.student||"";
-  currentTopic=d.name||"";
-  $("emptyState").style.display="none";
-  if(d.type==="Study notes"){ $("notesContent").innerHTML=d.html||`<p>${escHtml(d.content)}</p>`; $("notesIntro").textContent=`Saved notes: ${d.name}`;setTab("notes");}
-  else if(d.type==="Practice quiz"){ $("quizContent").innerHTML=d.html||`<p>${escHtml(d.content)}</p>`;setTab("quiz");}
-  else {$("output").innerHTML=d.html||`<pre>${escHtml(d.content)}</pre>`;setTab("assignment");}
-  $("workspace").scrollIntoView({behavior:"smooth",block:"start"});toast("Opened saved document.");
-}
-function renameSavedDocument(id){
-  const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;
-  const name=prompt("Enter a new document name:",d.name||"Untitled document");if(name===null)return;
-  if(!name.trim()){toast("Document name cannot be empty.");return;}
-  d.name=name.trim().slice(0,120);d.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();toast("Document renamed.");
-}
-function deleteSavedDocument(id){
-  const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;
-  if(!confirm(`Delete “${d.name}” from this browser's library?`))return;
-  writeLibrary(items.filter(x=>x.id!==id));renderLibrary();toast("Document deleted from this browser.");
-}
-function downloadSavedDocument(id){
-  const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;
-  const lines=[`MY AI — ${d.name}`,`Type: ${d.type}`,`Created by: ${d.student}`,`Created: ${d.createdLabel||d.createdAt}`,`Downloaded by: ${($("studentName")?.value||d.student||"Student").trim()}`,`Download time: ${nowStamp()}`,"","",d.content||""];
-  const blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download=(d.name||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-").slice(0,70)+".txt";
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  d.downloads=d.downloads||[];d.downloads.push({by:($("studentName")?.value||d.student||"Student").trim(),at:nowStamp()});d.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();toast("Download started; download time recorded.");
-}
-$("saveCurrentBtn")?.addEventListener("click",saveCurrentDocument);
-document.addEventListener("click",event=>{if(event.target && event.target.id==="pdfBtn")setTimeout(recordCurrentDownload,100);});
-$("downloadCurrentBtn")?.addEventListener("click",()=>{
-  const tab=typeof currentTab!=="undefined"?currentTab:"assignment";
-  if(tab==="assignment"&&$("output")?.innerText?.trim()){downloadPDF();recordCurrentDownload();}
-  else {const doc=currentDocument();if(!doc)return;const blob=new Blob([`MY AI — ${doc.name}\nCreated by: ${doc.student}\nCreated: ${doc.createdLabel}\nDownloaded: ${nowStamp()}\n\n${doc.content}`],{type:"text/plain;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(doc.name||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("Download started.");}
-});
-function recordCurrentDownload(){
-  const items=readLibrary();const topic=($("topic")?.value||currentTopic||"").trim();
-  const doc=items.find(d=>d.name===topic&&d.type==="Assignment");
-  if(doc){doc.downloads=doc.downloads||[];doc.downloads.push({by:($("studentName")?.value||"Student").trim()||"Student",at:nowStamp()});doc.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();}
-}
-$("librarySearch")?.addEventListener("input",renderLibrary);
-$("exportLibraryBtn")?.addEventListener("click",()=>{
-  const data=JSON.stringify({app:"MY AI",exportedAt:nowStamp(),documents:readLibrary()},null,2);
-  const blob=new Blob([data],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="my-ai-library-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Library backup exported.");
-});
+"use strict";
+const API_URL="https://my-ai-backend.walterbrown.workers.dev/api/generate";
+const $=id=>document.getElementById(id);
+let currentTab="assignment",currentTopic="",currentResult="",toastTimer;
+function showToast(msg){const el=$("toast");el.textContent=msg;el.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display="none",3200)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderMarkdown(text){let out="",p=[],list="";const flush=()=>{if(p.length){out+="<p>"+p.map(esc).join("<br>")+"</p>";p=[]}};const close=()=>{if(list){out+=`</${list}>`;list=""}};for(const raw of String(text||"").replace(/\r/g,"").split("\n")){const s=raw.trim();if(!s){flush();close();continue}let h=s.match(/^(#{1,3})\s+(.+)$/),n=s.match(/^\d+[.)]\s+(.+)$/),b=s.match(/^[-*•]\s+(.+)$/);if(h){flush();close();let level=Math.min(h[1].length+1,4);out+=`<h${level}>${esc(h[2].replace(/\*\*/g,""))}</h${level}>`}else if(n||b){flush();let typ=n?"ol":"ul";if(list&&list!==typ)close();if(!list){list=typ;out+=`<${typ}>`}out+=`<li>${esc((n||b)[1].replace(/\*\*/g,""))}</li>`}else{close();p.push(s.replace(/\*\*(.*?)\*\*/g,"$1"))}}flush();close();return out||"<p>No content returned. Try again.</p>"}
+function containerFor(tab){return tab==="notes"?$("notesContent"):tab==="quiz"?$("quizContent"):tab==="explanation"?$("explanationContent"):$("output")}
+function setTab(tab){currentTab=tab;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));const has=!!currentTopic;$("emptyState").style.display=has?"none":"flex";$("output").style.display=has&&tab==="assignment"?"block":"none";$("notesArea").style.display=has&&tab==="notes"?"block":"none";$("quizArea").style.display=has&&tab==="quiz"?"block":"none";$("explanationArea").style.display=has&&tab==="explanation"?"block":"none"}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+function taskForTab(tab){return tab==="notes"?"notes":tab==="quiz"?"quiz":tab==="explanation"?"explanation":"assignment"}
+async function generateMaterial(event){if(event)event.preventDefault();const topic=$("topic").value.trim();if(!topic){showToast("Please enter a topic first.");$("topic").focus();return}currentTopic=topic;const tab=currentTab,task=taskForTab(tab),button=$("generateBtn"),old=button.textContent,target=containerFor(tab);button.disabled=true;button.textContent="Generating with AI…";$("emptyState").style.display="none";target.style.display="block";target.innerHTML="<p>MY AI is preparing your material. Please wait…</p>";setTab(tab);
+try{const instructions=[$("subject").value.trim()?"Subject: "+$("subject").value.trim():"",$("language").value==="Urdu"?"Write the complete response in Urdu.":"Write in English.",$("student").value.trim()?"Student name: "+$("student").value.trim():"",$("university").value.trim()?"University: "+$("university").value.trim():"",$("roll").value.trim()?"Roll number: "+$("roll").value.trim():"",$("instructions").value.trim()?"Teacher instructions: "+$("instructions").value.trim():"",task==="assignment"?"Use a suitable academic structure. Do not invent citations or references.":"",task==="quiz"?"Include questions, answer key and short explanations.":"",task==="notes"?"Create clear headings, definitions, examples and revision points.":""].filter(Boolean).join("\n");
+const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({task,topic,level:$("level").value,semester:$("semester").value,length:$("length").value,instructions})});let data;try{data=await res.json()}catch{throw new Error("Backend returned an unreadable response.")}if(!res.ok||!data.success||!data.content)throw new Error(data.error||`Request failed (${res.status}).`);
+currentResult=data.content;target.innerHTML=`<div class="notice">AI-generated ${esc(task)} · ${esc(new Date(data.generatedAt||Date.now()).toLocaleString())}. Verify important facts and references.</div>${renderMarkdown(data.content)}`;
+if(tab==="assignment"){target.insertAdjacentHTML("beforeend",'<div class="actions"><button class="secondary" id="copyBtn" type="button">Copy text</button><button class="primary" id="pdfBtn" type="button">Print / Save as PDF</button></div>');$("copyBtn").onclick=copyCurrent;$("pdfBtn").onclick=printCurrent}
+setTab(tab);showToast("AI generation successful!")
+}catch(err){target.innerHTML=`<div class="notice">Could not generate content.</div><p>${esc(err.message||"Connection failed.")}</p><p class="hint">Confirm your Cloudflare Worker is deployed and your internet connection is working.</p><button class="secondary" id="retryBtn" type="button">Try again</button>`;$("retryBtn").onclick=()=>generateMaterial();showToast("AI request failed. Read the workspace error.")}
+finally{button.disabled=false;button.textContent=old}}
+$("assignmentForm").addEventListener("submit",generateMaterial);
+function currentText(){return(containerFor(currentTab)?.innerText||currentResult||"").trim()}
+async function copyCurrent(){try{await navigator.clipboard.writeText(currentText());showToast("Text copied.")}catch{showToast("Copy unavailable. Select the text and copy manually.")}}
+function printCurrent(){if(currentTab!=="assignment"){showToast("Switch to Assignment to print it.");return}const w=window.open("","_blank");if(!w){showToast("Allow pop-ups to print or save as PDF.");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc($("topic").value||"MY AI document")}</title><style>body{font:12pt/1.65 Georgia,serif;color:#111;max-width:800px;margin:35px auto;padding:0 20px}h2,h3{line-height:1.3}.notice,.actions{display:none}@page{margin:20mm}</style></head><body><h1>${esc($("topic").value||"MY AI document")}</h1><p>Created with MY AI · ${esc(new Date().toLocaleString())}</p>${$("output").innerHTML}</body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)}
+const KEY="myAI_document_library_v1";
+function readLibrary(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}}
+function writeLibrary(items){localStorage.setItem(KEY,JSON.stringify(items))}
+function stamp(){return new Date().toLocaleString()}
+function currentDoc(){const text=currentText();if(!text){showToast("Generate content before saving.");return null}return{id:"doc_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),name:($("topic").value.trim()||"Untitled document").slice(0,120),type:currentTab==="notes"?"Study notes":currentTab==="quiz"?"Practice quiz":currentTab==="explanation"?"Explanation":"Assignment",student:$("studentName").value.trim()||$("student").value.trim()||"Student",createdAt:new Date().toISOString(),createdLabel:stamp(),updatedAt:new Date().toISOString(),content:text,downloads:[]}}
+function saveCurrent(){const d=currentDoc();if(!d)return;try{let items=readLibrary();items.unshift(d);writeLibrary(items);renderLibrary();showToast("Saved to My Library on this device.")}catch{showToast("Browser storage is full. Export a backup or delete old documents.")}}
+function renderLibrary(){const items=readLibrary(),q=$("librarySearch").value.toLowerCase().trim();$("libraryCount").textContent=`${items.length} saved document${items.length===1?"":"s"}`;const shown=items.filter(d=>[d.name,d.type,d.student,d.content].join(" ").toLowerCase().includes(q));if(!shown.length){$("libraryList").innerHTML=`<div class="empty-library">${items.length?"No documents match your search.":"Your saved documents will appear here. Generate material and save it."}</div>`;return}
+$("libraryList").innerHTML=shown.map(d=>`<article class="library-item"><div><h3>${esc(d.name||"Untitled")}</h3><div class="library-meta">${esc(d.type||"Document")} · Created by ${esc(d.student||"Student")}<br>Created: ${esc(d.createdLabel||d.createdAt||"Unknown")}<br>Updated: ${esc(d.updatedAt?new Date(d.updatedAt).toLocaleString():"—")} · Downloads: ${(d.downloads||[]).length}</div></div><div class="library-actions"><button class="small-btn" data-open="${esc(d.id)}">Open</button><button class="small-btn" data-rename="${esc(d.id)}">Rename</button><button class="small-btn" data-download="${esc(d.id)}">Download TXT</button><button class="small-btn danger" data-delete="${esc(d.id)}">Delete</button></div></article>`).join("");
+$("libraryList").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openSaved(b.dataset.open));$("libraryList").querySelectorAll("[data-rename]").forEach(b=>b.onclick=()=>renameSaved(b.dataset.rename));$("libraryList").querySelectorAll("[data-download]").forEach(b=>b.onclick=()=>downloadSaved(b.dataset.download));$("libraryList").querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteSaved(b.dataset.delete))}
+function openSaved(id){const d=readLibrary().find(x=>x.id===id);if(!d)return;currentTopic=d.name||"";currentResult=d.content||"";$("topic").value=d.name||"";$("studentName").value=d.student||"";const tab=d.type==="Study notes"?"notes":d.type==="Practice quiz"?"quiz":d.type==="Explanation"?"explanation":"assignment";containerFor(tab).innerHTML=renderMarkdown(d.content||"");setTab(tab);$("workspace").scrollIntoView({behavior:"smooth",block:"start"});showToast("Opened saved document.")}
+function renameSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;const name=prompt("Enter a new document name:",d.name||"Untitled");if(name===null)return;if(!name.trim()){showToast("Name cannot be empty.");return}d.name=name.trim().slice(0,120);d.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();showToast("Document renamed.")}
+function deleteSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;if(!confirm(`Delete “${d.name}” from this browser's library?`))return;writeLibrary(items.filter(x=>x.id!==id));renderLibrary();showToast("Document deleted.")}
+function downloadSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;const blob=new Blob([`MY AI — ${d.name}\nType: ${d.type}\nCreated by: ${d.student}\nCreated: ${d.createdLabel}\nDownloaded: ${stamp()}\n\n${d.content}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(d.name||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);d.downloads=d.downloads||[];d.downloads.push({at:stamp(),by:$("studentName").value.trim()||d.student});d.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();showToast("Download started; history recorded.")}
+$("saveCurrentBtn").addEventListener("click",saveCurrent);
+$("downloadCurrentBtn").addEventListener("click",()=>{if(!currentText()){showToast("Generate content before downloading.");return}if(currentTab==="assignment"){printCurrent();return}const blob=new Blob([`MY AI — ${$("topic").value.trim()}\nCreated: ${stamp()}\n\n${currentText()}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=($("topic").value.trim()||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Text download started.")});
+$("librarySearch").addEventListener("input",renderLibrary);
+$("exportLibraryBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({app:"MY AI",exportedAt:stamp(),documents:readLibrary()},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="my-ai-library-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Library backup exported.")});
 renderLibrary();
-
 </script>
 </body>
 </html>
+
