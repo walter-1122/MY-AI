@@ -34,7 +34,7 @@
 </section></main>
 <section class="library-wrap"><div class="library-card"><div class="library-head"><div><h2>My Library</h2><p>Saved documents, rename controls and download history.</p></div><strong id="libraryCount">0 saved documents</strong></div><div class="library-tools"><input id="librarySearch" placeholder="Search saved documents…"><button class="secondary" id="exportLibraryBtn" type="button">Export library backup</button></div><div class="library-list" id="libraryList"><div class="empty-library">Your saved documents will appear here.</div></div><p class="library-note">Documents are stored in this browser's local storage. They do not sync automatically across devices or browsers. Export a backup to keep a copy.</p></div></section>
 <footer><strong>MY AI</strong> · Your personal study companion<br>Use your course materials to verify facts and references. Review and understand your work before submission.</footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 "use strict";
 const API_URL="https://my-ai-backend.walterbrown.workers.dev/api/generate";
@@ -60,40 +60,52 @@ function currentText(){return(containerFor(currentTab)?.innerText||currentResult
 async function copyCurrent(){try{await navigator.clipboard.writeText(currentText());showToast("Text copied.")}catch{showToast("Copy unavailable. Select the text and copy manually.")}}
 async function downloadPDF(){
   if(currentTab!=="assignment"){showToast("Switch to Assignment to download its PDF.");return}
-  if(typeof html2pdf==="undefined"){showToast("PDF library did not load. Check your internet connection and try again.");return}
-  // Use the original AI response text, not a clone of the hidden/displayed UI.
-  const rawAssignment=String(currentResult||"").trim();
-  if(!rawAssignment){showToast("No assignment text found. Generate the assignment again first.");return}
-  const student=$("student").value.trim()||$("studentName").value.trim()||"________________";
-  const roll=$("roll").value.trim()||"________________";
-  const semester=$("semester").value.trim()||"________________";
-  const subject=$("subject").value.trim()||"________________";
-  const university=$("university").value.trim()||"________________";
-  const topic=$("topic").value.trim()||"Assignment";
-  const wrapper=document.createElement("div");
-  wrapper.id="myai-pdf-export-temp";
-  wrapper.style.cssText="position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111;box-sizing:border-box;padding:56px 58px;font-family:Georgia,'Times New Roman',serif;font-size:12pt;line-height:1.55;overflow:visible;opacity:1;z-index:-1;";
-  wrapper.innerHTML=`<div style="text-align:center;margin:0 0 26px"><h1 style="font-size:19pt;margin:0;text-decoration:underline;font-weight:bold;color:#111">ASSIGNMENT</h1></div>
-  <table style="width:100%;border-collapse:collapse;margin:0 0 26px;font-size:11pt;color:#111"><tbody>
-  <tr><td style="padding:7px;border:1px solid #777;width:50%"><b>Student Name:</b> ${esc(student)}</td><td style="padding:7px;border:1px solid #777"><b>Roll Number:</b> ${esc(roll)}</td></tr>
-  <tr><td style="padding:7px;border:1px solid #777"><b>Semester:</b> ${esc(semester)}</td><td style="padding:7px;border:1px solid #777"><b>Subject:</b> ${esc(subject)}</td></tr>
-  <tr><td colspan="2" style="padding:7px;border:1px solid #777"><b>University / College:</b> ${esc(university)}</td></tr>
-  </tbody></table>
-  <h2 style="text-align:center;font-size:16pt;font-weight:bold;text-decoration:underline;margin:0 0 20px;color:#111">${esc(topic)}</h2>
-  <div id="myai-pdf-assignment-content" style="display:block;visibility:visible;color:#111;background:#fff"></div>`;
-  const contentBox=wrapper.querySelector("#myai-pdf-assignment-content");
-  contentBox.innerHTML=renderMarkdown(rawAssignment);
-  contentBox.querySelectorAll("*").forEach(el=>{
-    el.style.color="#111";el.style.background="transparent";el.style.boxShadow="none";el.style.textShadow="none";el.style.maxWidth="100%";el.style.overflow="visible";
-    if(["H1","H2","H3","H4"].includes(el.tagName)){el.style.fontWeight="bold";el.style.textDecoration="underline";el.style.textUnderlineOffset="3px";el.style.pageBreakAfter="avoid";el.style.breakAfter="avoid-page";}
-    if(["P","LI"].includes(el.tagName)){el.style.fontSize="12pt";el.style.lineHeight="1.6";el.style.whiteSpace="normal";el.style.overflowWrap="anywhere";}
-  });
-  document.body.appendChild(wrapper);
-  const options={margin:[12,12,14,12],filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#ffffff",logging:false,scrollX:0,scrollY:0,windowWidth:794},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:["h1","h2","h3","h4"]}};
-  showToast("Preparing your PDF download…");
-  try{await html2pdf().set(options).from(wrapper).save();showToast("PDF downloaded. Please check all pages.");}
-  catch(err){console.error("MY AI PDF export failed:",err);showToast("PDF could not be created. Try again after refreshing the page.");}
-  finally{wrapper.remove();}
+  const raw=String(currentResult||"").trim();
+  if(!raw){showToast("No assignment text found. Generate the assignment again first.");return}
+  const JsPDF=window.jspdf&&window.jspdf.jsPDF;
+  if(!JsPDF){showToast("PDF engine did not load. Refresh the page and try again.");return}
+  try{
+    const doc=new JsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+    const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight();
+    const left=20,right=20,usable=pageW-left-right;let y=20;
+    const student=$("student").value.trim()||$("studentName").value.trim()||"________________";
+    const roll=$("roll").value.trim()||"________________";
+    const semester=$("semester").value.trim()||"________________";
+    const subject=$("subject").value.trim()||"________________";
+    const university=$("university").value.trim()||"________________";
+    const topic=$("topic").value.trim()||"Assignment";
+    const safe=(v)=>String(v||"").replace(/[\u0000-\u001f]/g," ").trim();
+    const ensure=(height)=>{if(y+height>pageH-18){doc.addPage();y=20}};
+    const write=(text,{size=11,bold=false,align="left",indent=0,underline=false,gap=2}={})=>{
+      const content=safe(text);if(!content){y+=2;return}
+      doc.setFont("times",bold?"bold":"normal");doc.setFontSize(size);
+      const lines=doc.splitTextToSize(content,usable-indent);
+      const lineH=size*0.42+1.7;ensure(lines.length*lineH+gap);
+      doc.text(lines,align==="center"?pageW/2:left+indent,y,{align});
+      if(underline){const width=Math.min(doc.getTextWidth(content),usable-indent);doc.setLineWidth(0.25);doc.line(align==="center"?(pageW-width)/2:left+indent, y+1, align==="center"?(pageW+width)/2:left+indent+width,y+1)}
+      y+=lines.length*lineH+gap;
+    };
+    doc.setProperties({title:topic,subject:subject,author:student,creator:"MY AI"});
+    write("ASSIGNMENT",{size:18,bold:true,align:"center",underline:true,gap:8});
+    write("Student Name: "+student+"     Roll Number: "+roll,{size:10,bold:false,gap:4});
+    write("Semester: "+semester+"     Subject: "+subject,{size:10,gap:4});
+    write("University / College: "+university,{size:10,gap:8});
+    write(topic,{size:15,bold:true,align:"center",underline:true,gap:8});
+    for(const rawLine of raw.replace(/\r/g,"").split("\n")){
+      const line=rawLine.trim();
+      if(!line){y+=2;continue}
+      const heading=line.match(/^(#{1,6})\s+(.+)$/);
+      const numbered=line.match(/^\d+[.)]\s+(.+)$/);
+      const bullet=line.match(/^[-*•]\s+(.+)$/);
+      if(heading){write(heading[2].replace(/\*\*/g,""),{size:heading[1].length===1?14:heading[1].length===2?12:11,bold:true,underline:true,gap:3});continue}
+      if(numbered){write(numbered[0].replace(/\*\*/g,""),{size:11,indent:4,gap:2});continue}
+      if(bullet){write("•  "+bullet[1].replace(/\*\*/g,""),{size:11,indent:4,gap:2});continue}
+      write(line.replace(/\*\*(.*?)\*\*/g,"$1").replace(/`([^`]+)`/g,"$1"),{size:11,gap:3});
+    }
+    const total=doc.getNumberOfPages();for(let i=1;i<=total;i++){doc.setPage(i);doc.setFont("times","normal");doc.setFontSize(9);doc.text(`Page ${i} of ${total}`,pageW/2,pageH-9,{align:"center"})}
+    const filename=(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf";
+    doc.save(filename);showToast("PDF download started. Check the downloaded file.");
+  }catch(err){console.error("MY AI PDF export failed:",err);showToast("PDF creation failed. Open browser console and share the error.")}
 }
 const KEY="myAI_document_library_v1";
 function readLibrary(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}}
@@ -116,4 +128,3 @@ renderLibrary();
 </script>
 </body>
 </html>
-
