@@ -34,6 +34,7 @@
 </section></main>
 <section class="library-wrap"><div class="library-card"><div class="library-head"><div><h2>My Library</h2><p>Saved documents, rename controls and download history.</p></div><strong id="libraryCount">0 saved documents</strong></div><div class="library-tools"><input id="librarySearch" placeholder="Search saved documents…"><button class="secondary" id="exportLibraryBtn" type="button">Export library backup</button></div><div class="library-list" id="libraryList"><div class="empty-library">Your saved documents will appear here.</div></div><p class="library-note">Documents are stored in this browser's local storage. They do not sync automatically across devices or browsers. Export a backup to keep a copy.</p></div></section>
 <footer><strong>MY AI</strong> · Your personal study companion<br>Use your course materials to verify facts and references. Review and understand your work before submission.</footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 "use strict";
 const API_URL="https://my-ai-backend.walterbrown.workers.dev/api/generate";
@@ -50,14 +51,42 @@ async function generateMaterial(event){if(event)event.preventDefault();const top
 try{const instructions=[$("subject").value.trim()?"Subject: "+$("subject").value.trim():"",$("language").value==="Urdu"?"Write the complete response in Urdu.":"Write in English.",$("student").value.trim()?"Student name: "+$("student").value.trim():"",$("university").value.trim()?"University: "+$("university").value.trim():"",$("roll").value.trim()?"Roll number: "+$("roll").value.trim():"",$("instructions").value.trim()?"Teacher instructions: "+$("instructions").value.trim():"",task==="assignment"?"Use a suitable academic structure. Do not invent citations or references.":"",task==="quiz"?"Include questions, answer key and short explanations.":"",task==="notes"?"Create clear headings, definitions, examples and revision points.":""].filter(Boolean).join("\n");
 const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({task,topic,level:$("level").value,semester:$("semester").value,length:$("length").value,instructions})});let data;try{data=await res.json()}catch{throw new Error("Backend returned an unreadable response.")}if(!res.ok||!data.success||!data.content)throw new Error(data.error||`Request failed (${res.status}).`);
 currentResult=data.content;target.innerHTML=`<div class="notice">AI-generated ${esc(task)} · ${esc(new Date(data.generatedAt||Date.now()).toLocaleString())}. Verify important facts and references.</div>${renderMarkdown(data.content)}`;
-if(tab==="assignment"){target.insertAdjacentHTML("beforeend",'<div class="actions"><button class="secondary" id="copyBtn" type="button">Copy text</button><button class="primary" id="pdfBtn" type="button">Print / Save as PDF</button></div>');$("copyBtn").onclick=copyCurrent;$("pdfBtn").onclick=printCurrent}
+if(tab==="assignment"){target.insertAdjacentHTML("beforeend",'<div class="actions"><button class="secondary" id="copyBtn" type="button">Copy text</button><button class="primary" id="pdfBtn" type="button">Download PDF</button></div>');$("copyBtn").onclick=copyCurrent;$("pdfBtn").onclick=downloadPDF}
 setTab(tab);showToast("AI generation successful!")
 }catch(err){target.innerHTML=`<div class="notice">Could not generate content.</div><p>${esc(err.message||"Connection failed.")}</p><p class="hint">Confirm your Cloudflare Worker is deployed and your internet connection is working.</p><button class="secondary" id="retryBtn" type="button">Try again</button>`;$("retryBtn").onclick=()=>generateMaterial();showToast("AI request failed. Read the workspace error.")}
 finally{button.disabled=false;button.textContent=old}}
 $("assignmentForm").addEventListener("submit",generateMaterial);
 function currentText(){return(containerFor(currentTab)?.innerText||currentResult||"").trim()}
 async function copyCurrent(){try{await navigator.clipboard.writeText(currentText());showToast("Text copied.")}catch{showToast("Copy unavailable. Select the text and copy manually.")}}
-function printCurrent(){if(currentTab!=="assignment"){showToast("Switch to Assignment to print it.");return}const w=window.open("","_blank");if(!w){showToast("Allow pop-ups to print or save as PDF.");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc($("topic").value||"MY AI document")}</title><style>body{font:12pt/1.65 Georgia,serif;color:#111;max-width:800px;margin:35px auto;padding:0 20px}h2,h3{line-height:1.3}.notice,.actions{display:none}@page{margin:20mm}</style></head><body><h1>${esc($("topic").value||"MY AI document")}</h1><p>Created with MY AI · ${esc(new Date().toLocaleString())}</p>${$("output").innerHTML}</body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)}
+function downloadPDF(){
+  if(currentTab!=="assignment"){showToast("Switch to Assignment to download its PDF.");return}
+  if(typeof html2pdf==="undefined"){showToast("PDF library did not load. Check your internet connection and try again.");return}
+  const student=$("student").value.trim()||$("studentName").value.trim()||"________________";
+  const roll=$("roll").value.trim()||"________________";
+  const semester=$("semester").value.trim()||"________________";
+  const subject=$("subject").value.trim()||"________________";
+  const university=$("university").value.trim()||"________________";
+  const topic=$("topic").value.trim()||"Assignment";
+  const content=$("output").cloneNode(true);
+  content.querySelectorAll(".notice,.actions").forEach(el=>el.remove());
+  const wrapper=document.createElement("div");
+  wrapper.style.cssText="font-family:Georgia,'Times New Roman',serif;color:#111;background:#fff;padding:24px 28px;font-size:12pt;line-height:1.65;width:100%;";
+  wrapper.innerHTML=`<div style="text-align:center;margin-bottom:28px"><h1 style="font-size:19pt;margin:0 0 18px;text-decoration:underline;font-weight:bold">ASSIGNMENT</h1></div>
+  <table style="width:100%;border-collapse:collapse;margin:0 0 28px;font-size:11pt"><tbody>
+  <tr><td style="padding:6px 8px;border:1px solid #777;width:50%"><b>Student Name:</b> ${esc(student)}</td><td style="padding:6px 8px;border:1px solid #777"><b>Roll Number:</b> ${esc(roll)}</td></tr>
+  <tr><td style="padding:6px 8px;border:1px solid #777"><b>Semester:</b> ${esc(semester)}</td><td style="padding:6px 8px;border:1px solid #777"><b>Subject:</b> ${esc(subject)}</td></tr>
+  <tr><td colspan="2" style="padding:6px 8px;border:1px solid #777"><b>University / College:</b> ${esc(university)}</td></tr>
+  </tbody></table>
+  <h2 style="text-align:center;font-size:16pt;font-weight:bold;text-decoration:underline;margin:0 0 22px">${esc(topic)}</h2>
+  <div id="pdfContent"></div>`;
+  wrapper.querySelector("#pdfContent").append(...Array.from(content.childNodes));
+  wrapper.querySelectorAll("h1,h2,h3,h4").forEach(h=>{h.style.fontWeight="bold";h.style.textDecoration="underline";h.style.textUnderlineOffset="3px";h.style.color="#111";h.style.pageBreakAfter="avoid";});
+  wrapper.querySelectorAll("p,li").forEach(el=>{el.style.color="#111";el.style.fontSize="12pt";el.style.lineHeight="1.65";});
+  wrapper.querySelectorAll("p").forEach(p=>{if(p.textContent.trim() && !p.querySelector("li")){p.style.marginBottom="10px";}});
+  const options={margin:[15,15,18,15],filename:(topic.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-|-$/g,"")||"assignment")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};
+  showToast("Preparing your PDF download…");
+  html2pdf().set(options).from(wrapper).save().then(()=>showToast("PDF downloaded to your computer." )).catch(()=>showToast("PDF could not be created. Please try again."));
+}
 const KEY="myAI_document_library_v1";
 function readLibrary(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}}
 function writeLibrary(items){localStorage.setItem(KEY,JSON.stringify(items))}
@@ -72,11 +101,12 @@ function renameSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if
 function deleteSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;if(!confirm(`Delete “${d.name}” from this browser's library?`))return;writeLibrary(items.filter(x=>x.id!==id));renderLibrary();showToast("Document deleted.")}
 function downloadSaved(id){const items=readLibrary(),d=items.find(x=>x.id===id);if(!d)return;const blob=new Blob([`MY AI — ${d.name}\nType: ${d.type}\nCreated by: ${d.student}\nCreated: ${d.createdLabel}\nDownloaded: ${stamp()}\n\n${d.content}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(d.name||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);d.downloads=d.downloads||[];d.downloads.push({at:stamp(),by:$("studentName").value.trim()||d.student});d.updatedAt=new Date().toISOString();writeLibrary(items);renderLibrary();showToast("Download started; history recorded.")}
 $("saveCurrentBtn").addEventListener("click",saveCurrent);
-$("downloadCurrentBtn").addEventListener("click",()=>{if(!currentText()){showToast("Generate content before downloading.");return}if(currentTab==="assignment"){printCurrent();return}const blob=new Blob([`MY AI — ${$("topic").value.trim()}\nCreated: ${stamp()}\n\n${currentText()}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=($("topic").value.trim()||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Text download started.")});
+$("downloadCurrentBtn").addEventListener("click",()=>{if(!currentText()){showToast("Generate content before downloading.");return}if(currentTab==="assignment"){downloadPDF();return}const blob=new Blob([`MY AI — ${$("topic").value.trim()}\nCreated: ${stamp()}\n\n${currentText()}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=($("topic").value.trim()||"my-ai-document").replace(/[^a-z0-9-_]+/gi,"-")+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Text download started.")});
 $("librarySearch").addEventListener("input",renderLibrary);
 $("exportLibraryBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({app:"MY AI",exportedAt:stamp(),documents:readLibrary()},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="my-ai-library-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Library backup exported.")});
 renderLibrary();
 </script>
 </body>
 </html>
+
 
